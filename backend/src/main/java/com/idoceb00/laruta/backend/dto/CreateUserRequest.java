@@ -1,0 +1,16 @@
+package com.idoceb00.laruta.backend.dto;
+
+import com.idoceb00.laruta.backend.model.User;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public record CreateUserRequest(
+        @NotBlank(message = "A username is required")
+        @Size(min = 3, max = 30, message = "The username must be between 3 and 30 characters long")
+        String username,
+
+        @NotBlank(message = "A password is required")
+        @Size(min = 8, max = 72, message = "The password must be between 8 and 72 characters long")
+        String password
+) {
+}
