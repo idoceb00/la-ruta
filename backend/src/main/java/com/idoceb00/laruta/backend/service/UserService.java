@@ -33,7 +33,8 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserResponse findById(Long id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+        User user = userRepository.findById(id).orElseThrow(() ->
+                new UserNotFoundException("User not found with id: " + id));
 
         return UserResponse.from(user);
     }

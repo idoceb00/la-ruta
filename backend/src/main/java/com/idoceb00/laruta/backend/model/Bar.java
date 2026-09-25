@@ -42,4 +42,12 @@ public class Bar {
         this.zone = zone;
         this.notes = notes;
     }
+
+    public void update(String name, String city, String address, String zone, String notes) {
+        this.name = name;
+        this.city = city;
+        this.address = address;
+        this.zone = zone;
+        this.notes = notes;
+    }
 }
