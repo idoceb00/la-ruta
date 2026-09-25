@@ -40,4 +40,10 @@ public class GlobalExceptionHandler {
                 fieldErrors
         );
     }
+
+    @ExceptionHandler(BarNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleBarNotFound(BarNotFoundException ex) {
+        return ErrorResponse.of(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+    }
 }
