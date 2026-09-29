@@ -9,5 +9,5 @@ import java.util.Optional;
 public interface TapaRepository extends JpaRepository<Tapa, Long> {
     Optional<Tapa> findByNameIgnoreCase(String name);
     boolean existsByNameIgnoreCase(String name);
-    List<Tapa> findByNameContainingIgnoreCase(String name);
+    List<Tapa> findTop10ByNameContainingIgnoreCase(String name);
 }

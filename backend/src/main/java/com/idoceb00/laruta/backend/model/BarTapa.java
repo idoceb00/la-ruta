@@ -35,7 +35,7 @@ public class BarTapa {
         this.rating = rating;
     }
 
-    public void updaterating(Integer rating) {
+    public void updateRating(Integer rating) {
         this.rating = rating;
     }
 }
