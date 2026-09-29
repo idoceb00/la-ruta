@@ -46,4 +46,22 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleBarNotFound(BarNotFoundException ex) {
         return ErrorResponse.of(HttpStatus.NOT_FOUND.value(), ex.getMessage());
     }
+
+    @ExceptionHandler(TapaNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleTapaNotFound(TapaNotFoundException ex){
+        return ErrorResponse.of(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+    }
+
+    @ExceptionHandler(BarTapaNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleBarTapaNotFound(BarTapaNotFoundException ex){
+        return ErrorResponse.of(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+    }
+
+    @ExceptionHandler(BarTapaAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleBarTapaAlreadyExists(BarTapaAlreadyExistsException ex) {
+        return ErrorResponse.of(HttpStatus.CONFLICT.value(), ex.getMessage());
+    }
 }
