@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "bar_tapas", uniqueConstraints = {
@@ -20,13 +22,15 @@ public class BarTapa {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "bar_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Bar bar;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "tapa_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Tapa tapa;
 
-    @Column(nullable = true)
+    @Column
     private Integer rating;
 
     public BarTapa(Bar bar, Tapa tapa, Integer rating) {
