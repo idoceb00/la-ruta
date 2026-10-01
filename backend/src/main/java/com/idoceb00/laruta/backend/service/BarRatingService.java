@@ -2,6 +2,7 @@ package com.idoceb00.laruta.backend.service;
 
 import com.idoceb00.laruta.backend.dto.BarRatingRequest;
 import com.idoceb00.laruta.backend.dto.BarRatingResponse;
+import com.idoceb00.laruta.backend.dto.BarRatingStats;
 import com.idoceb00.laruta.backend.exception.BarNotFoundException;
 import com.idoceb00.laruta.backend.exception.BarRatingNotFoundException;
 import com.idoceb00.laruta.backend.exception.UserNotFoundException;
@@ -14,6 +15,10 @@ import com.idoceb00.laruta.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collection;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -64,6 +69,26 @@ public class BarRatingService {
         return barRatingRepository.countByBarId(barId);
     }
 
+    @Transactional(readOnly = true)
+    public Map<Long, BarRatingStats> getStatsByBarId(Collection<Long> barIds) {
+        if (barIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return barRatingRepository.findStatsByBarId(barIds).stream()
+                .collect(Collectors.toMap(
+                        BarRatingStats::barId,
+                        stats -> new BarRatingStats(
+                                stats.barId(),
+                                roundToOneDecimal(stats.averageRating()),
+                                stats.ratingCount()
+                        )
+                ));
+    }
+
+    private Double roundToOneDecimal(Double value) {
+        return Math.round(value * 10) / 10.0;
+    }
     private Bar findBarOrThrow(Long barId) {
         return barRepository.findById(barId)
                 .orElseThrow(() -> new BarNotFoundException("Bar not found with id: " + barId));

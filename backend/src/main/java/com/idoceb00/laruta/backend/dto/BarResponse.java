@@ -11,9 +11,11 @@ public record BarResponse(
         String address,
         String zone,
         String notes,
+        Double avgRating,
+        long ratingCount,
         Instant createdAt
 ) {
-    public static BarResponse from(Bar bar) {
+    public static BarResponse from(Bar bar, Double avgRating, long ratingCount) {
         return new BarResponse(
                 bar.getId(),
                 bar.getName(),
@@ -21,6 +23,8 @@ public record BarResponse(
                 bar.getAddress(),
                 bar.getZone(),
                 bar.getNotes(),
+                avgRating,
+                ratingCount,
                 bar.getCreatedAt()
         );
     }
