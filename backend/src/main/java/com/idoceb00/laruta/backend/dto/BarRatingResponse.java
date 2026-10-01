@@ -6,7 +6,7 @@ public record BarRatingResponse(
         Long barId,
         Integer userRating,
         Double averageRating,
-        long ratinCount
+        long ratingCount
 ) {
     public static BarRatingResponse from(BarRating barRating, Double averageRating, long ratingCount){
         return new BarRatingResponse(

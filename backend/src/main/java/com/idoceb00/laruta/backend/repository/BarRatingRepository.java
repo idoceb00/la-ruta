@@ -21,7 +21,7 @@ public interface BarRatingRepository extends JpaRepository<BarRating, Long> {
     long countByBarId(Long barId);
 
     @Query("""
-        SELECT new com.idoceb00.laruta.backend.repository.projection.BarRatingStats(
+        SELECT new com.idoceb00.laruta.backend.dto.BarRatingStats(
             r.bar.id, AVG(r.rating), COUNT(r)
         )
         FROM BarRating r
