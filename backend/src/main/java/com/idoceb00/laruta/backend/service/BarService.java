@@ -1,5 +1,6 @@
 package com.idoceb00.laruta.backend.service;
 
+import com.idoceb00.laruta.backend.dto.BarRatingStats;
 import com.idoceb00.laruta.backend.dto.BarResponse;
 import com.idoceb00.laruta.backend.dto.BarRequest;
 import com.idoceb00.laruta.backend.exception.BarNotFoundException;
@@ -10,12 +11,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class BarService {
 
     private final BarRepository barRepository;
+    private final BarRatingService barRatingService;
 
     @Transactional
     public BarResponse createBar(BarRequest request) {
@@ -27,19 +30,20 @@ public class BarService {
                 request.notes()
         );
 
-        return BarResponse.from(barRepository.save(bar));
+        return BarResponse.from(barRepository.save(bar), null, 0);
     }
 
     @Transactional(readOnly = true)
     public BarResponse findById(Long id) {
         Bar bar = barRepository.findById(id).orElseThrow(() -> new BarNotFoundException("Bar not found with id: " + id));
 
-        return BarResponse.from(bar);
+        return BarResponse.from(bar, barRatingService.getAverageRating(id), barRatingService.getRatingCount(id));
     }
 
     @Transactional(readOnly = true)
     public List<BarResponse> findAll() {
-        return barRepository.findAll().stream().map(BarResponse::from).toList();
+
+        return toResponses(barRepository.findAll());
     }
 
     @Transactional
@@ -53,7 +57,7 @@ public class BarService {
 
     @Transactional(readOnly = true)
     public List<BarResponse> searchBar(String query) {
-        return barRepository.search(query).stream().map(BarResponse::from).toList();
+        return toResponses(barRepository.search(query));
     }
 
     @Transactional
@@ -64,6 +68,23 @@ public class BarService {
 
         bar.update(request.name(), request.city(), request.address(), request.zone(), request.notes());
 
-        return BarResponse.from(bar);
+        return BarResponse.from(bar, barRatingService.getAverageRating(id), barRatingService.getRatingCount(id));
+    }
+
+    private List<BarResponse> toResponses(List<Bar> bars) {
+        List<Long> barIds = bars.stream()
+                .map(Bar::getId)
+                .toList();
+
+        Map<Long, BarRatingStats> statsByBarId = barRatingService.getStatsByBarId(barIds);
+
+        return bars.stream()
+                .map(bar -> {
+                    BarRatingStats stats = statsByBarId.get(bar.getId());
+                    return stats == null
+                            ? BarResponse.from(bar, null, 0L)
+                            : BarResponse.from(bar, stats.averageRating(), stats.ratingCount());
+                })
+                .toList();
     }
 }
