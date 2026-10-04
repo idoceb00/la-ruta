@@ -1,6 +1,5 @@
 package com.idoceb00.laruta.backend.dto;
 
-import com.idoceb00.laruta.backend.model.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 

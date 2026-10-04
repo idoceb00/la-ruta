@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 
@@ -31,9 +32,24 @@ public class Bar {
     @Column(length = 1000)
     private String notes;
 
+    @Column(nullable = false)
+    private long ratingSum = 0;
+
+    @Column(nullable = false)
+    private long ratingCount = 0;
+
     @Column(updatable = false)
     @CreationTimestamp
     private Instant createdAt;
+
+    @Column
+    @UpdateTimestamp
+    private Instant updatedAt;
+
+    // Hibernate increments it on every update and rejects the save if another transaction changed the row first.
+    // Managed by hibernate, never set it manually.
+    @Version
+    private Long version;
 
     public Bar(String name, String city, String address, String zone, String notes) {
         this.name = name;
@@ -49,5 +65,39 @@ public class Bar {
         this.address = address;
         this.zone = zone;
         this.notes = notes;
+    }
+
+    public Double getAverageRating() {
+        if (ratingCount == 0){
+            return null;
+        }
+
+        double average = (double) ratingSum / ratingCount;
+        return Math.round(average * 10) / 10.0;
+    }
+
+    public void addRating(int rating) {
+        validateRating(rating);
+        ratingSum += rating;
+        ratingCount++;
+    }
+
+    public void changeRating(int oldRating, int newRating) {
+        validateRating(newRating);
+        ratingSum += newRating - oldRating;
+    }
+
+    public void removeRating(int rating) {
+        if (ratingCount == 0) {
+            throw new IllegalStateException("Bar has no ratings to remove");
+        }
+        ratingSum -= rating;
+        ratingCount--;
+    }
+
+    private void validateRating(int rating) {
+        if (rating < 0 || rating > 10){
+            throw new IllegalArgumentException("Rating must be between 0 and 10, got: " + rating);
+        }
     }
 }

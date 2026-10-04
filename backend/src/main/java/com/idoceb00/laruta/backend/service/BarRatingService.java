@@ -2,7 +2,6 @@ package com.idoceb00.laruta.backend.service;
 
 import com.idoceb00.laruta.backend.dto.BarRatingRequest;
 import com.idoceb00.laruta.backend.dto.BarRatingResponse;
-import com.idoceb00.laruta.backend.dto.BarRatingStats;
 import com.idoceb00.laruta.backend.exception.BarNotFoundException;
 import com.idoceb00.laruta.backend.exception.BarRatingNotFoundException;
 import com.idoceb00.laruta.backend.exception.UserNotFoundException;
@@ -16,10 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class BarRatingService {
@@ -32,20 +27,24 @@ public class BarRatingService {
     public BarRatingResponse rateBar(Long barId, BarRatingRequest barRatingRequest){
         Bar bar = findBarOrThrow(barId);
         User user = findUserOrThrow(barRatingRequest.userId());
+        int newRating = barRatingRequest.rating();
 
         BarRating barRating = barRatingRepository.findByBarIdAndUserId(barId, user.getId())
                 .map(existing -> {
-                   existing.updateRating(barRatingRequest.rating());
+                    // Old value must be read before updating the rating
+                    bar.changeRating(existing.getRating(), newRating);
+                    existing.updateRating(newRating);
                    return existing;
                 })
-                .orElseGet(() -> barRatingRepository.save(
-                        new BarRating(bar, user, barRatingRequest.rating())
-                ));
+                .orElseGet(() ->{
+                        bar.addRating(newRating);
+                        return barRatingRepository.save(new BarRating(bar, user, newRating));
+                });
 
         return BarRatingResponse.from(
                 barRating,
-                getAverageRating(barId),
-                getRatingCount(barId)
+                bar.getAverageRating(),
+                bar.getRatingCount()
         );
     }
 
@@ -54,41 +53,10 @@ public class BarRatingService {
         BarRating barRating = barRatingRepository.findByBarIdAndUserId(barId, userId)
                 .orElseThrow(() -> new BarRatingNotFoundException("Rating not found for bar " + barId + " and user " + userId));
 
+        barRating.getBar().removeRating(barRating.getRating());
         barRatingRepository.delete(barRating);
     }
 
-    @Transactional(readOnly = true)
-    public Double getAverageRating(Long barId){
-        return barRatingRepository.findAverageRatingByBarId(barId)
-                .map(avg -> Math.round(avg * 10) / 10.0)
-                .orElse(null);
-    }
-
-    @Transactional(readOnly = true)
-    public long getRatingCount(Long barId) {
-        return barRatingRepository.countByBarId(barId);
-    }
-
-    @Transactional(readOnly = true)
-    public Map<Long, BarRatingStats> getStatsByBarId(Collection<Long> barIds) {
-        if (barIds.isEmpty()) {
-            return Map.of();
-        }
-
-        return barRatingRepository.findStatsByBarId(barIds).stream()
-                .collect(Collectors.toMap(
-                        BarRatingStats::barId,
-                        stats -> new BarRatingStats(
-                                stats.barId(),
-                                roundToOneDecimal(stats.averageRating()),
-                                stats.ratingCount()
-                        )
-                ));
-    }
-
-    private Double roundToOneDecimal(Double value) {
-        return Math.round(value * 10) / 10.0;
-    }
     private Bar findBarOrThrow(Long barId) {
         return barRepository.findById(barId)
                 .orElseThrow(() -> new BarNotFoundException("Bar not found with id: " + barId));

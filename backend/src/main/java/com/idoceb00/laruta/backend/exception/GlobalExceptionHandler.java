@@ -1,6 +1,7 @@
 package com.idoceb00.laruta.backend.exception;
 
 import com.idoceb00.laruta.backend.dto.ErrorResponse;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -69,5 +70,11 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleBarRatingNotFound(BarRatingNotFoundException ex) {
         return ErrorResponse.of(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleOptimisticLockingFailure(OptimisticLockingFailureException ex) {
+        return ErrorResponse.of(HttpStatus.CONFLICT.value(), "The resource was modified by another request, please retry");
     }
 }
