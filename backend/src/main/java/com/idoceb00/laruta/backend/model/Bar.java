@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 
@@ -40,6 +41,15 @@ public class Bar {
     @Column(updatable = false)
     @CreationTimestamp
     private Instant createdAt;
+
+    @Column
+    @UpdateTimestamp
+    private Instant updatedAt;
+
+    // Hibernate increments it on every update and rejects the save if another transaction changed the row first.
+    // Managed by hibernate, never set it manually.
+    @Version
+    private Long version;
 
     public Bar(String name, String city, String address, String zone, String notes) {
         this.name = name;
