@@ -30,14 +30,14 @@ public class BarService {
                 request.notes()
         );
 
-        return BarResponse.from(barRepository.save(bar), null, 0);
+        return BarResponse.from(barRepository.save(bar));
     }
 
     @Transactional(readOnly = true)
     public BarResponse findById(Long id) {
         Bar bar = barRepository.findById(id).orElseThrow(() -> new BarNotFoundException("Bar not found with id: " + id));
 
-        return BarResponse.from(bar, barRatingService.getAverageRating(id), barRatingService.getRatingCount(id));
+        return BarResponse.from(bar);
     }
 
     @Transactional(readOnly = true)
@@ -68,23 +68,10 @@ public class BarService {
 
         bar.update(request.name(), request.city(), request.address(), request.zone(), request.notes());
 
-        return BarResponse.from(bar, barRatingService.getAverageRating(id), barRatingService.getRatingCount(id));
+        return BarResponse.from(bar);
     }
 
     private List<BarResponse> toResponses(List<Bar> bars) {
-        List<Long> barIds = bars.stream()
-                .map(Bar::getId)
-                .toList();
-
-        Map<Long, BarRatingStats> statsByBarId = barRatingService.getStatsByBarId(barIds);
-
-        return bars.stream()
-                .map(bar -> {
-                    BarRatingStats stats = statsByBarId.get(bar.getId());
-                    return stats == null
-                            ? BarResponse.from(bar, null, 0L)
-                            : BarResponse.from(bar, stats.averageRating(), stats.ratingCount());
-                })
-                .toList();
+        return bars.stream().map(BarResponse::from).toList();
     }
 }

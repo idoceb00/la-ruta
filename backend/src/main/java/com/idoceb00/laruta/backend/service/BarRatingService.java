@@ -32,20 +32,24 @@ public class BarRatingService {
     public BarRatingResponse rateBar(Long barId, BarRatingRequest barRatingRequest){
         Bar bar = findBarOrThrow(barId);
         User user = findUserOrThrow(barRatingRequest.userId());
+        int newRating = barRatingRequest.rating();
 
         BarRating barRating = barRatingRepository.findByBarIdAndUserId(barId, user.getId())
                 .map(existing -> {
-                   existing.updateRating(barRatingRequest.rating());
+                    // Old value must be read before updating the rating
+                    bar.changeRating(existing.getRating(), newRating);
+                    existing.updateRating(newRating);
                    return existing;
                 })
-                .orElseGet(() -> barRatingRepository.save(
-                        new BarRating(bar, user, barRatingRequest.rating())
-                ));
+                .orElseGet(() ->{
+                        bar.addRating(newRating);
+                        return barRatingRepository.save(new BarRating(bar, user, newRating));
+                });
 
         return BarRatingResponse.from(
                 barRating,
-                getAverageRating(barId),
-                getRatingCount(barId)
+                bar.getAverageRating(),
+                bar.getRatingCount()
         );
     }
 
@@ -54,6 +58,7 @@ public class BarRatingService {
         BarRating barRating = barRatingRepository.findByBarIdAndUserId(barId, userId)
                 .orElseThrow(() -> new BarRatingNotFoundException("Rating not found for bar " + barId + " and user " + userId));
 
+        barRating.getBar().removeRating(barRating.getRating());
         barRatingRepository.delete(barRating);
     }
 
