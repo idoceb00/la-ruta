@@ -10,11 +10,7 @@ import lombok.NoArgsConstructor;
 @Getter
 // Constructor required for reading rows via JPA
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Tapa {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Tapa extends BaseEntity{
 
     @Column(nullable = false, unique = true, length = 100)
     private String name;
