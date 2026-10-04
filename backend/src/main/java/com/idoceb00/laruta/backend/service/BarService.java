@@ -1,6 +1,5 @@
 package com.idoceb00.laruta.backend.service;
 
-import com.idoceb00.laruta.backend.dto.BarRatingStats;
 import com.idoceb00.laruta.backend.dto.BarResponse;
 import com.idoceb00.laruta.backend.dto.BarRequest;
 import com.idoceb00.laruta.backend.exception.BarNotFoundException;
@@ -18,7 +17,6 @@ import java.util.Map;
 public class BarService {
 
     private final BarRepository barRepository;
-    private final BarRatingService barRatingService;
 
     @Transactional
     public BarResponse createBar(BarRequest request) {

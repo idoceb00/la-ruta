@@ -28,6 +28,8 @@ public class BarRating {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Bar bar;
 
+    // TODO: ON DELETE CASCADE bypasses Java, so deleting a user would leave Bar rating aggregates out of sync.
+    //  User deletion must update affected bars before deleting.
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
