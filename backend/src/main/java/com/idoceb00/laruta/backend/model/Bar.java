@@ -4,20 +4,14 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.Instant;
 
 @Entity
 @Table(name = "bars")
 @Getter
 // Constructor required for reading rows via JPA
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Bar {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Bar extends BaseEntity {
 
     @Column(nullable = false)
     private String name;
@@ -37,14 +31,6 @@ public class Bar {
 
     @Column(nullable = false)
     private long ratingCount = 0;
-
-    @Column(updatable = false)
-    @CreationTimestamp
-    private Instant createdAt;
-
-    @Column
-    @UpdateTimestamp
-    private Instant updatedAt;
 
     // Hibernate increments it on every update and rejects the save if another transaction changed the row first.
     // Managed by hibernate, never set it manually.
