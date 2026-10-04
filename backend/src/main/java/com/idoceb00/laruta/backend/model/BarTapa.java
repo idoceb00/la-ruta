@@ -14,11 +14,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Getter
 // Constructor required for reading rows via JPA
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class BarTapa {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class BarTapa extends BaseEntity{
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "bar_id", nullable = false)

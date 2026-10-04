@@ -4,12 +4,9 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.Instant;
 
 @Entity
 @Table(name = "bar_ratings", uniqueConstraints = {
@@ -18,10 +15,7 @@ import java.time.Instant;
 @Getter
 // Constructor required for reading rows via JPA
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class BarRating {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class BarRating extends BaseEntity{
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "bar_id", nullable = false)
@@ -37,14 +31,6 @@ public class BarRating {
 
     @Column(nullable = false)
     private Integer rating;
-
-    @Column(updatable = false)
-    @CreationTimestamp
-    private Instant createdAt;
-
-    @Column
-    @UpdateTimestamp
-    private Instant updatedAt;
 
     public BarRating(Bar bar, User user, Integer rating) {
         this.bar = bar;
