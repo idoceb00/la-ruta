@@ -21,7 +21,7 @@ public class AuditingConfig {
                 .map(Authentication::getPrincipal)
                 .filter(Jwt.class::isInstance)
                 .map(Jwt.class::cast)
-                .map(jwt -> jwt.<Number>getClaim("userID"))
+                .map(jwt -> jwt.<Number>getClaim("userId"))
                 .map(Number::longValue);
     }
 }

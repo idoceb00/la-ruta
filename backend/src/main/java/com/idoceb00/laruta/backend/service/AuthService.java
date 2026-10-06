@@ -23,10 +23,10 @@ public class AuthService {
     @Transactional(readOnly = true)
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByUsername(request.username())
-                .orElseThrow(() ->new InvalidCredentialsException("User or password is wrong"));
+                .orElseThrow(() ->new InvalidCredentialsException("Invalid username or password"));
 
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
-            throw new InvalidCredentialsException("Wrong password");
+            throw new InvalidCredentialsException("Invalid username or password");
         }
 
         String token = tokenService.generateToken(user);
