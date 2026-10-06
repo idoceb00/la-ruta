@@ -1,5 +1,6 @@
 package com.idoceb00.laruta.backend.config;
 
+import com.idoceb00.laruta.backend.security.CurrentUserProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
@@ -15,13 +16,7 @@ import java.util.Optional;
 public class AuditingConfig {
 
     @Bean
-    public AuditorAware<Long> auditorAware() {
-        return () -> Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-                .filter(Authentication::isAuthenticated)
-                .map(Authentication::getPrincipal)
-                .filter(Jwt.class::isInstance)
-                .map(Jwt.class::cast)
-                .map(jwt -> jwt.<Number>getClaim("userId"))
-                .map(Number::longValue);
+    public AuditorAware<Long> auditorAware(CurrentUserProvider currentUserProvider) {
+        return currentUserProvider::findCurrentUserId;
     }
 }
