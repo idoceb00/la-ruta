@@ -17,25 +17,14 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public UserResponse create(@Valid @RequestBody CreateUserRequest request) {
-        return userService.createUser(request);
+    @GetMapping("/me")
+    public UserResponse getCurrentUser(){
+        return userService.getCurrentUser();
     }
 
-    @GetMapping("/{id}")
-    public UserResponse findById(@PathVariable Long id) {
-        return userService.findById(id);
-    }
-
-    @GetMapping
-    public List<UserResponse> findAll() {
-        return userService.findAll();
-    }
-
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/me")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(@PathVariable Long id) {
-        userService.deleteById(id);
+    public void deleteCurrentUser(){
+        userService.deleteCurrentUser();
     }
 }
