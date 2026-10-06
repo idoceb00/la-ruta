@@ -11,6 +11,7 @@ import com.idoceb00.laruta.backend.model.User;
 import com.idoceb00.laruta.backend.repository.BarRatingRepository;
 import com.idoceb00.laruta.backend.repository.BarRepository;
 import com.idoceb00.laruta.backend.repository.UserRepository;
+import com.idoceb00.laruta.backend.security.CurrentUserProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,11 +23,12 @@ public class BarRatingService {
     private final BarRatingRepository barRatingRepository;
     private final BarRepository barRepository;
     private final UserRepository userRepository;
+    private final CurrentUserProvider currentUserProvider;
 
     @Transactional
     public BarRatingResponse rateBar(Long barId, BarRatingRequest barRatingRequest){
         Bar bar = findBarOrThrow(barId);
-        User user = findUserOrThrow(barRatingRequest.userId());
+        User user = findUserOrThrow(currentUserProvider.getCurrentUserId());
         int newRating = barRatingRequest.rating();
 
         BarRating barRating = barRatingRepository.findByBarIdAndUserId(barId, user.getId())
@@ -49,7 +51,8 @@ public class BarRatingService {
     }
 
     @Transactional
-    public void deleteRating(Long barId, Long userId) {
+    public void deleteRating(Long barId) {
+        Long userId = currentUserProvider.getCurrentUserId();
         BarRating barRating = barRatingRepository.findByBarIdAndUserId(barId, userId)
                 .orElseThrow(() -> new BarRatingNotFoundException("Rating not found for bar " + barId + " and user " + userId));
 

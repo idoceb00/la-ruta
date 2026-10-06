@@ -12,8 +12,10 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -118,23 +120,24 @@ class BarRatingControllerIntegrationTest {
     @Test
     void rateBar_whenRatingMissing_returnsBadRequest() throws Exception {
         String body = """
-                { "userId": %d }
-                """.formatted(user.getId());
+                { }
+                """;
 
-        rateWithBody(bar.getId(), body)
+        rateWithBody(bar.getId(), user.getId(), body)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Validation failed"));
     }
 
     @Test
-    void rateBar_whenUserIdMissing_returnsBadRequest() throws Exception {
+    void rateBar_whenNotAuthenticated_returnsUnauthorized() throws Exception {
         String body = """
-                { "rating": 5 }
+                { "rating": 8 }
                 """;
 
-        rateWithBody(bar.getId(), body)
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Validation failed"));
+        mockMvc.perform(put("/api/bars/{barId}/rating", bar.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -147,6 +150,7 @@ class BarRatingControllerIntegrationTest {
                         .value("Bar not found with id: " + nonExistentBarId));
     }
 
+    // A valid token can outlive its user (e.g. the account was deleted)
     @Test
     void rateBar_whenUserDoesNotExist_returnsNotFound() throws Exception {
         Long nonExistentUserId = user.getId() + 1000;
@@ -184,27 +188,33 @@ class BarRatingControllerIntegrationTest {
     }
 
     @Test
-    void deleteRating_whenUserIdMissing_returnsBadRequest() throws Exception {
+    void deleteRating_whenNotAuthenticated_returnsUnauthorized() throws Exception {
         mockMvc.perform(delete("/api/bars/{barId}/rating", bar.getId()))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isUnauthorized());
     }
 
     private ResultActions rate(Long barId, Long userId, Integer rating) throws Exception {
         String body = """
-                { "rating": %d, "userId": %d }
-                """.formatted(rating, userId);
-        return rateWithBody(barId, body);
+                { "rating": %d }
+                """.formatted(rating);
+        return rateWithBody(barId, userId, body);
     }
 
-    private ResultActions rateWithBody(Long barId, String body) throws Exception {
+    private ResultActions rateWithBody(Long barId, Long userId, String body) throws Exception {
         return mockMvc.perform(put("/api/bars/{barId}/rating", barId)
+                .with(authenticatedAs(userId))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body));
     }
 
     private ResultActions deleteRating(Long barId, Long userId) throws Exception {
         return mockMvc.perform(delete("/api/bars/{barId}/rating", barId)
-                .param("userId", userId.toString()));
+                .with(authenticatedAs(userId)));
+    }
+
+    // Simulates an already validated JWT carrying the userId claim
+    private RequestPostProcessor authenticatedAs(Long userId) {
+        return jwt().jwt(jwt -> jwt.claim("userId", userId));
     }
 
     private User createUser(String username) {
