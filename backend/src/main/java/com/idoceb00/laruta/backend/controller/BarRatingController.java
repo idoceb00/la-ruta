@@ -29,12 +29,11 @@ public class BarRatingController {
     }
 
 
-    // TODO: userId as query param is temporary until auth is implemented
     @Retryable(includes = OptimisticLockingFailureException.class, maxRetries = 3, delay = 50)
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeBarRating(@PathVariable Long barId, @RequestParam Long userId) {
-        barRatingService.deleteRating(barId, userId);
+    public void removeBarRating(@PathVariable Long barId) {
+        barRatingService.deleteRating(barId);
     }
 
 }

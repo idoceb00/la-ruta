@@ -7,10 +7,6 @@ import jakarta.validation.constraints.NotNull;
 public record BarRatingRequest(
         @NotNull(message = "A rating value is required")
         @Min(value = 0, message = "Rating must be between 0 and 10") @Max(value = 10, message = "Rating must be between 0 and 10")
-        Integer rating,
-
-        // TODO: temporary until auth is implemented
-        @NotNull(message = "A user id is required")
-        Long userId
+        Integer rating
 ) {
 }
