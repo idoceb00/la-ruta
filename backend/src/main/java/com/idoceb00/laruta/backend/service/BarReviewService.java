@@ -26,21 +26,23 @@ public class BarReviewService {
     private final CurrentUserProvider currentUserProvider;
 
     @Transactional
-    public BarReviewResponse rateBar(Long barId, BarReviewRequest barReviewRequest){
+    public BarReviewResponse saveReview(Long barId, BarReviewRequest barReviewRequest){
         Bar bar = findBarOrThrow(barId);
         User user = findUserOrThrow(currentUserProvider.getCurrentUserId());
-        int newRating = barReviewRequest.rating();
+        String notes = barReviewRequest.notes();
+        Integer newRating = barReviewRequest.rating();
 
         BarReview barReview = barReviewRepository.findByBarIdAndUserId(barId, user.getId())
                 .map(existing -> {
-                    // Old value must be read before updating the rating
-                    bar.changeRating(existing.getRating(), newRating);
-                    existing.updateRating(newRating);
-                   return existing;
+                    // Old value must be read before updating the review
+                    Integer oldRating = existing.getRating();
+                    bar.replaceRating(oldRating, newRating);
+                    existing.update(notes, newRating);
+                    return existing;
                 })
-                .orElseGet(() ->{
-                        bar.addRating(newRating);
-                        return barReviewRepository.save(new BarReview(bar, user, newRating));
+                .orElseGet(() -> {
+                    bar.replaceRating(null, newRating);
+                    return barReviewRepository.save(new BarReview(bar, user, notes, newRating));
                 });
 
         return BarReviewResponse.from(
@@ -51,12 +53,12 @@ public class BarReviewService {
     }
 
     @Transactional
-    public void deleteRating(Long barId) {
+    public void deleteReview(Long barId) {
         Long userId = currentUserProvider.getCurrentUserId();
         BarReview barReview = barReviewRepository.findByBarIdAndUserId(barId, userId)
                 .orElseThrow(() -> new BarReviewNotFoundException("Review not found for bar " + barId + " and user " + userId));
 
-        barReview.getBar().removeRating(barReview.getRating());
+        barReview.getBar().replaceRating(barReview.getRating(), null);
         barReviewRepository.delete(barReview);
     }
 

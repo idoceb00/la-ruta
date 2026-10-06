@@ -45,8 +45,7 @@ class BarControllerIntegrationTest {
                 "Anaikal",
                 "León",
                 "Calle Jesús Rubio",
-                "Colegio San Claudio",
-                "El arroz picante está realmente bueno.")
+                "Colegio San Claudio")
         );
         user = createUser("Roberto");
     }
@@ -77,8 +76,7 @@ class BarControllerIntegrationTest {
                 "El Rebote",
                 "León",
                 "Plaza San Martín",
-                "Barrio Húmedo",
-                "Croquetas enormes.")
+                "Barrio Húmedo")
         );
         rate(bar.getId(), user.getId(), 8);
 
@@ -99,10 +97,11 @@ class BarControllerIntegrationTest {
         String body = """
                 { "rating": %d }
                 """.formatted(rating);
-        mockMvc.perform(put("/api/bars/{barId}/rating", barId)
+        mockMvc.perform(put("/api/bars/{barId}/review", barId)
                 .with(authenticatedAs(userId))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(body));
+                .content(body))
+                .andExpect(status().isOk());
     }
 
     private User createUser(String username) {

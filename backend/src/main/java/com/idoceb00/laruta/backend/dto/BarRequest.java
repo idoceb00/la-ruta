@@ -15,9 +15,6 @@ public record BarRequest(
         String address,
 
         @Size(max = 255, message = "The zone must be at most 255 characters long")
-        String zone,
-
-        @Size(max = 1000, message = "The notes must be at most 1000 characters long")
-        String notes
+        String zone
 ) {
 }

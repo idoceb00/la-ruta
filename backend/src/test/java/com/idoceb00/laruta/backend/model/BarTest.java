@@ -26,8 +26,7 @@ class BarTest {
                 "Anaikal",
                 "León",
                 "Calle Jesús Rubio",
-                "Colegio San Claudio",
-                "El arroz picante está realmente bueno."
+                "Colegio San Claudio"
         );
     }
 
@@ -38,83 +37,94 @@ class BarTest {
     }
 
     @Test
-    void addRating_whenFirstRating_setsCountAndAverage() {
-        bar.addRating(8);
+    void replaceRating_whenFirstRating_setsCountAndAverage() {
+        bar.replaceRating(null, 8);
 
         assertThat(bar.getRatingCount()).isEqualTo(1);
         assertThat(bar.getAverageRating()).isEqualTo(8.0);
     }
 
     @Test
-    void addRating_whenSeveralRatings_roundsAverageToOneDecimal() {
-        bar.addRating(8);
-        bar.addRating(7);
-        bar.addRating(8);
+    void replaceRating_whenSeveralRatings_roundsAverageToOneDecimal() {
+        bar.replaceRating(null, 8);
+        bar.replaceRating(null, 7);
+        bar.replaceRating(null, 8);
 
         assertThat(bar.getRatingCount()).isEqualTo(3);
         assertThat(bar.getAverageRating()).isEqualTo(7.7);
     }
 
     @Test
-    void changeRating_updatesAverageKeepingCount() {
-        bar.addRating(8);
+    void replaceRating_whenChanged_updatesAverageKeepingCount() {
+        bar.replaceRating(null, 8);
 
-        bar.changeRating(8, 6);
+        bar.replaceRating(8, 6);
 
         assertThat(bar.getRatingCount()).isEqualTo(1);
         assertThat(bar.getAverageRating()).isEqualTo(6.0);
     }
 
     @Test
-    void changeRating_whenSameValue_keepsAverage() {
-        bar.addRating(8);
+    void replaceRating_whenSameValue_keepsAverage() {
+        bar.replaceRating(null, 8);
 
-        bar.changeRating(8, 8);
+        bar.replaceRating(8, 8);
 
         assertThat(bar.getRatingCount()).isEqualTo(1);
         assertThat(bar.getAverageRating()).isEqualTo(8.0);
     }
 
     @Test
-    void removeRating_whenSeveralRatings_recalculatesAverage() {
-        bar.addRating(10);
-        bar.addRating(5);
-        bar.addRating(6);
+    void replaceRating_whenRemovedWithSeveralRatings_recalculatesAverage() {
+        bar.replaceRating(null, 10);
+        bar.replaceRating(null, 5);
+        bar.replaceRating(null, 6);
 
-        bar.removeRating(6);
+        bar.replaceRating(6, null);
 
         assertThat(bar.getRatingCount()).isEqualTo(2);
         assertThat(bar.getAverageRating()).isEqualTo(7.5);
     }
 
     @Test
-    void removeRating_whenLastRating_resetsToNoRatings() {
-        bar.addRating(8);
+    void replaceRating_whenLastRatingRemoved_resetsToNoRatings() {
+        bar.replaceRating(null, 8);
 
-        bar.removeRating(8);
+        bar.replaceRating(8, null);
+
+        assertThat(bar.getRatingCount()).isZero();
+        assertThat(bar.getAverageRating()).isNull();
+    }
+
+    // Notes-only edit: neither the old nor the new review has a rating
+    @Test
+    void replaceRating_whenBothNull_keepsAggregates() {
+        bar.replaceRating(null, 8);
+
+        bar.replaceRating(null, null);
+
+        assertThat(bar.getRatingCount()).isEqualTo(1);
+        assertThat(bar.getAverageRating()).isEqualTo(8.0);
+    }
+
+    @Test
+    void replaceRating_whenAddedOutOfRange_throwsAndKeepsAggregates() {
+        assertThatThrownBy(() -> bar.replaceRating(null, 11))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> bar.replaceRating(null, -1))
+                .isInstanceOf(IllegalArgumentException.class);
 
         assertThat(bar.getRatingCount()).isZero();
         assertThat(bar.getAverageRating()).isNull();
     }
 
     @Test
-    void addRating_whenOutOfRange_throwsException() {
-        assertThatThrownBy(() -> bar.addRating(11))
-                .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> bar.addRating(-1))
-                .isInstanceOf(IllegalArgumentException.class);
+    void replaceRating_whenChangedOutOfRange_throwsAndKeepsAggregates() {
+        bar.replaceRating(null, 5);
 
-        assertThat(bar.getRatingCount()).isZero();
-        assertThat(bar.getAverageRating()).isNull();
-    }
-
-    @Test
-    void changeRating_whenOutOfRange_throwsException() {
-        bar.addRating(5);
-
-        assertThatThrownBy(() -> bar.changeRating(5, 11))
+        assertThatThrownBy(() -> bar.replaceRating(5, 11))
                 .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> bar.changeRating(5, -1))
+        assertThatThrownBy(() -> bar.replaceRating(5, -1))
                 .isInstanceOf(IllegalArgumentException.class);
 
         assertThat(bar.getRatingCount()).isEqualTo(1);
@@ -122,8 +132,8 @@ class BarTest {
     }
 
     @Test
-    void removeRating_whenNoRatings_throwsException() {
-        assertThatThrownBy(() -> bar.removeRating(1))
+    void replaceRating_whenRemovingWithNoRatings_throwsException() {
+        assertThatThrownBy(() -> bar.replaceRating(1, null))
                 .isInstanceOf(IllegalStateException.class);
     }
 }

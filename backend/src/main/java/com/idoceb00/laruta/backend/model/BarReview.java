@@ -29,16 +29,20 @@ public class BarReview extends BaseEntity{
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
-    @Column(nullable = false)
+    @Column(length = 1000)
+    private String notes;
+
     private Integer rating;
 
-    public BarReview(Bar bar, User user, Integer rating) {
+    public BarReview(Bar bar, User user, String notes, Integer rating) {
         this.bar = bar;
         this.user = user;
+        this.notes = notes;
         this.rating = rating;
     }
 
-    public void updateRating(Integer rating) {
+    public void update(String notes, Integer rating) {
+        this.notes = notes;
         this.rating = rating;
     }
 }

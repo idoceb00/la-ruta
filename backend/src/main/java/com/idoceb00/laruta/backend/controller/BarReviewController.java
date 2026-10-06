@@ -24,8 +24,8 @@ public class BarReviewController {
     // Retries on concurrent updates (@Version in Bar); each attempt runs a new transaction.
     @Retryable(includes = OptimisticLockingFailureException.class, maxRetries = 3, delay = 50)
     @PutMapping
-    public ResponseEntity<BarReviewResponse> rateBar(@PathVariable Long barId, @Valid @RequestBody BarReviewRequest barReviewRequest){
-        return ResponseEntity.ok(barReviewService.rateBar(barId, barReviewRequest));
+    public ResponseEntity<BarReviewResponse> saveReview(@PathVariable Long barId, @Valid @RequestBody BarReviewRequest barReviewRequest){
+        return ResponseEntity.ok(barReviewService.saveReview(barId, barReviewRequest));
     }
 
 
@@ -33,7 +33,7 @@ public class BarReviewController {
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeBarRating(@PathVariable Long barId) {
-        barReviewService.deleteRating(barId);
+        barReviewService.deleteReview(barId);
     }
 
 }

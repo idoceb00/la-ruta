@@ -45,7 +45,7 @@ class BaseEntityAuditingTest {
         Instant originalUpdatedAt = original.getUpdatedAt();
 
         // A real change is required, otherwise Hibernate skips the UPDATE
-        original.update("Updated Name", "León", "Calle Ancha 1", "Centro", null);
+        original.update("Updated Name", "León", "Calle Ancha 1", "Centro");
         barRepository.save(original);
 
         Bar modified = barRepository.findById(barId).orElseThrow();
@@ -55,6 +55,6 @@ class BaseEntityAuditingTest {
     }
 
     private Bar newBar() {
-        return new Bar("Test Bar", "León", "Calle Ancha 1", "Centro", null);
+        return new Bar("Test Bar", "León", "Calle Ancha 1", "Centro");
     }
 }

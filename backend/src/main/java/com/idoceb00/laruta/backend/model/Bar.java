@@ -23,9 +23,6 @@ public class Bar extends BaseEntity {
 
     private String zone;
 
-    @Column(length = 1000)
-    private String notes;
-
     @Column(nullable = false)
     private long ratingSum = 0;
 
@@ -37,20 +34,18 @@ public class Bar extends BaseEntity {
     @Version
     private Long version;
 
-    public Bar(String name, String city, String address, String zone, String notes) {
+    public Bar(String name, String city, String address, String zone) {
         this.name = name;
         this.city = city;
         this.address = address;
         this.zone = zone;
-        this.notes = notes;
     }
 
-    public void update(String name, String city, String address, String zone, String notes) {
+    public void update(String name, String city, String address, String zone) {
         this.name = name;
         this.city = city;
         this.address = address;
         this.zone = zone;
-        this.notes = notes;
     }
 
     public Double getAverageRating() {
@@ -62,18 +57,25 @@ public class Bar extends BaseEntity {
         return Math.round(average * 10) / 10.0;
     }
 
-    public void addRating(int rating) {
-        validateRating(rating);
+    // Single entry point for rating changes
+    public void replaceRating(Integer oldRating, Integer newRating) {
+        if (newRating != null) {
+            validateRating(newRating);
+        }
+        if (oldRating != null) {
+            removeRating(oldRating);
+        }
+        if (newRating != null) {
+            addRating(newRating);
+        }
+    }
+
+    private void addRating(int rating) {
         ratingSum += rating;
         ratingCount++;
     }
 
-    public void changeRating(int oldRating, int newRating) {
-        validateRating(newRating);
-        ratingSum += newRating - oldRating;
-    }
-
-    public void removeRating(int rating) {
+    private void removeRating(int rating) {
         if (ratingCount == 0) {
             throw new IllegalStateException("Bar has no ratings to remove");
         }
