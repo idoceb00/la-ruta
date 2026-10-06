@@ -77,4 +77,10 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleOptimisticLockingFailure(OptimisticLockingFailureException ex) {
         return ErrorResponse.of(HttpStatus.CONFLICT.value(), "The resource was modified by another request, please retry");
     }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleInvalidCredentials(InvalidCredentialsException ex) {
+        return ErrorResponse.of(HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
+    }
 }
