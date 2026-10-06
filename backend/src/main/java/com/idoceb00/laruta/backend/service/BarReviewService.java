@@ -1,14 +1,14 @@
 package com.idoceb00.laruta.backend.service;
 
-import com.idoceb00.laruta.backend.dto.BarRatingRequest;
-import com.idoceb00.laruta.backend.dto.BarRatingResponse;
+import com.idoceb00.laruta.backend.dto.BarReviewRequest;
+import com.idoceb00.laruta.backend.dto.BarReviewResponse;
 import com.idoceb00.laruta.backend.exception.BarNotFoundException;
-import com.idoceb00.laruta.backend.exception.BarRatingNotFoundException;
+import com.idoceb00.laruta.backend.exception.BarReviewNotFoundException;
 import com.idoceb00.laruta.backend.exception.UserNotFoundException;
 import com.idoceb00.laruta.backend.model.Bar;
-import com.idoceb00.laruta.backend.model.BarRating;
+import com.idoceb00.laruta.backend.model.BarReview;
 import com.idoceb00.laruta.backend.model.User;
-import com.idoceb00.laruta.backend.repository.BarRatingRepository;
+import com.idoceb00.laruta.backend.repository.BarReviewRepository;
 import com.idoceb00.laruta.backend.repository.BarRepository;
 import com.idoceb00.laruta.backend.repository.UserRepository;
 import com.idoceb00.laruta.backend.security.CurrentUserProvider;
@@ -18,20 +18,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class BarRatingService {
+public class BarReviewService {
 
-    private final BarRatingRepository barRatingRepository;
+    private final BarReviewRepository barReviewRepository;
     private final BarRepository barRepository;
     private final UserRepository userRepository;
     private final CurrentUserProvider currentUserProvider;
 
     @Transactional
-    public BarRatingResponse rateBar(Long barId, BarRatingRequest barRatingRequest){
+    public BarReviewResponse rateBar(Long barId, BarReviewRequest barReviewRequest){
         Bar bar = findBarOrThrow(barId);
         User user = findUserOrThrow(currentUserProvider.getCurrentUserId());
-        int newRating = barRatingRequest.rating();
+        int newRating = barReviewRequest.rating();
 
-        BarRating barRating = barRatingRepository.findByBarIdAndUserId(barId, user.getId())
+        BarReview barReview = barReviewRepository.findByBarIdAndUserId(barId, user.getId())
                 .map(existing -> {
                     // Old value must be read before updating the rating
                     bar.changeRating(existing.getRating(), newRating);
@@ -40,11 +40,11 @@ public class BarRatingService {
                 })
                 .orElseGet(() ->{
                         bar.addRating(newRating);
-                        return barRatingRepository.save(new BarRating(bar, user, newRating));
+                        return barReviewRepository.save(new BarReview(bar, user, newRating));
                 });
 
-        return BarRatingResponse.from(
-                barRating,
+        return BarReviewResponse.from(
+                barReview,
                 bar.getAverageRating(),
                 bar.getRatingCount()
         );
@@ -53,11 +53,11 @@ public class BarRatingService {
     @Transactional
     public void deleteRating(Long barId) {
         Long userId = currentUserProvider.getCurrentUserId();
-        BarRating barRating = barRatingRepository.findByBarIdAndUserId(barId, userId)
-                .orElseThrow(() -> new BarRatingNotFoundException("Rating not found for bar " + barId + " and user " + userId));
+        BarReview barReview = barReviewRepository.findByBarIdAndUserId(barId, userId)
+                .orElseThrow(() -> new BarReviewNotFoundException("Review not found for bar " + barId + " and user " + userId));
 
-        barRating.getBar().removeRating(barRating.getRating());
-        barRatingRepository.delete(barRating);
+        barReview.getBar().removeRating(barReview.getRating());
+        barReviewRepository.delete(barReview);
     }
 
     private Bar findBarOrThrow(Long barId) {

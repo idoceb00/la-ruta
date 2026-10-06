@@ -66,9 +66,9 @@ public class GlobalExceptionHandler {
         return ErrorResponse.of(HttpStatus.CONFLICT.value(), ex.getMessage());
     }
 
-    @ExceptionHandler(BarRatingNotFoundException.class)
+    @ExceptionHandler(BarReviewNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleBarRatingNotFound(BarRatingNotFoundException ex) {
+    public ErrorResponse handleBarRatingNotFound(BarReviewNotFoundException ex) {
         return ErrorResponse.of(HttpStatus.NOT_FOUND.value(), ex.getMessage());
     }
 
