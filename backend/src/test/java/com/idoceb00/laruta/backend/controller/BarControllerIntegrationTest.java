@@ -12,16 +12,15 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.nullValue;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static com.idoceb00.laruta.backend.testutil.TestAuth.authenticatedAs;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -96,19 +95,14 @@ class BarControllerIntegrationTest {
                 .with(authenticatedAs(user.getId())));
     }
 
-    private ResultActions rate(Long barId, Long userId, Integer rating) throws Exception {
+    private void rate(Long barId, Long userId, Integer rating) throws Exception {
         String body = """
                 { "rating": %d }
                 """.formatted(rating);
-        return mockMvc.perform(put("/api/bars/{barId}/rating", barId)
+        mockMvc.perform(put("/api/bars/{barId}/rating", barId)
                 .with(authenticatedAs(userId))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body));
-    }
-
-    // Simulates an already validated JWT carrying the userId claim
-    private RequestPostProcessor authenticatedAs(Long userId) {
-        return jwt().jwt(jwt -> jwt.claim("userId", userId));
     }
 
     private User createUser(String username) {
