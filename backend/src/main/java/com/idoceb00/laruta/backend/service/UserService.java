@@ -6,12 +6,11 @@ import com.idoceb00.laruta.backend.exception.UserNotFoundException;
 import com.idoceb00.laruta.backend.exception.UsernameAlreadyExistsException;
 import com.idoceb00.laruta.backend.model.User;
 import com.idoceb00.laruta.backend.repository.UserRepository;
+import com.idoceb00.laruta.backend.security.CurrentUserProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +18,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CurrentUserProvider currentUserProvider;
 
     @Transactional
     public UserResponse createUser(CreateUserRequest request) {
@@ -32,31 +32,20 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserResponse findById(Long id) {
-        User user = userRepository.findById(id).orElseThrow(() ->
-                new UserNotFoundException("User not found with id: " + id));
-
-        return UserResponse.from(user);
-    }
-
-    @Transactional(readOnly = true)
-    public UserResponse findByUsername(String username) {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found: " + username));
-
-        return UserResponse.from(user);
-    }
-
-    @Transactional(readOnly = true)
-    public List<UserResponse> findAll() {
-        return userRepository.findAll().stream().map(UserResponse::from).toList();
+    public UserResponse getCurrentUser() {
+        Long userId = currentUserProvider.getCurrentUserId();
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+        return  UserResponse.from(user);
     }
 
     @Transactional
-    public void deleteById(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new UserNotFoundException("User not found with id: " + id);
+    public void deleteCurrentUser() {
+        Long userId = currentUserProvider.getCurrentUserId();
+        if (!userRepository.existsById(userId)){
+            throw new UserNotFoundException("User not found with id: " + userId);
         }
+        userRepository.deleteById(userId);
 
-        userRepository.deleteById(id);
     }
+
 }
