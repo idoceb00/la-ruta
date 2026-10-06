@@ -26,16 +26,8 @@ public class BarTapa extends BaseEntity{
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Tapa tapa;
 
-    @Column
-    private Integer rating;
-
-    public BarTapa(Bar bar, Tapa tapa, Integer rating) {
+    public BarTapa(Bar bar, Tapa tapa) {
         this.bar = bar;
         this.tapa = tapa;
-        this.rating = rating;
-    }
-
-    public void updateRating(Integer rating) {
-        this.rating = rating;
     }
 }

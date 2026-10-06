@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface BarTapaRepository extends JpaRepository<BarTapa, Long> {
     List<BarTapa> findByBarId(Long barId);
-    List<BarTapa> findByTapaIdOrderByRatingDesc(Long tapaId);
+    List<BarTapa> findByTapaId(Long tapaId);
     Optional<BarTapa> findByBarIdAndTapaId(Long barId, Long tapaId);
     boolean existsByBarIdAndTapaId(Long barId, Long tapaId);
 }

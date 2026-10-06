@@ -6,16 +6,14 @@ public record BarTapaResponse(
         Long barId,
         String barName,
         Long tapaId,
-        String tapaName,
-        Integer rating
+        String tapaName
 ) {
     public static BarTapaResponse from(BarTapa barTapa) {
         return new BarTapaResponse(
                 barTapa.getBar().getId(),
                 barTapa.getBar().getName(),
                 barTapa.getTapa().getId(),
-                barTapa.getTapa().getName(),
-                barTapa.getRating()
+                barTapa.getTapa().getName()
         );
     }
 }
