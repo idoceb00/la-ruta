@@ -23,11 +23,9 @@ public class Bar extends BaseEntity {
 
     private String zone;
 
-    @Column(nullable = false)
-    private long ratingSum = 0;
-
-    @Column(nullable = false)
-    private long ratingCount = 0;
+    @Embedded
+    @Getter(AccessLevel.NONE)
+    private RatingStats ratingStats = new RatingStats();
 
     // Hibernate increments it on every update and rejects the save if another transaction changed the row first.
     // Managed by hibernate, never set it manually.
@@ -49,12 +47,11 @@ public class Bar extends BaseEntity {
     }
 
     public Double getAverageRating() {
-        if (ratingCount == 0){
-            return null;
-        }
+        return ratingStats.getAverageRating();
+    }
 
-        double average = (double) ratingSum / ratingCount;
-        return Math.round(average * 10) / 10.0;
+    public long getRatingCount() {
+        return ratingStats.getRatingCount();
     }
 
     // Single entry point for rating changes
@@ -62,25 +59,7 @@ public class Bar extends BaseEntity {
         if (newRating != null) {
             validateRating(newRating);
         }
-        if (oldRating != null) {
-            removeRating(oldRating);
-        }
-        if (newRating != null) {
-            addRating(newRating);
-        }
-    }
-
-    private void addRating(int rating) {
-        ratingSum += rating;
-        ratingCount++;
-    }
-
-    private void removeRating(int rating) {
-        if (ratingCount == 0) {
-            throw new IllegalStateException("Bar has no ratings to remove");
-        }
-        ratingSum -= rating;
-        ratingCount--;
+        ratingStats.replaceRating(oldRating, newRating);
     }
 
     private void validateRating(int rating) {
