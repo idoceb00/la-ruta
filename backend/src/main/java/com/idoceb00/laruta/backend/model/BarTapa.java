@@ -26,8 +26,38 @@ public class BarTapa extends BaseEntity{
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Tapa tapa;
 
+    @Embedded
+    @Getter(AccessLevel.NONE)
+    private RatingStats ratingStats = new RatingStats();
+
+    // Hibernate increments it on every update and rejects the save if another transaction changed the row first.
+    // Managed by hibernate, never set it manually.
+    @Version
+    private Long version;
+
     public BarTapa(Bar bar, Tapa tapa) {
         this.bar = bar;
         this.tapa = tapa;
+    }
+
+    public Double getAverageRating() {
+        return ratingStats.getAverageRating();
+    }
+
+    public long getRatingCount() {
+        return ratingStats.getRatingCount();
+    }
+
+    public void replaceRating(Integer oldRating, Integer newRating) {
+        if (newRating != null) {
+            validateRating(newRating);
+        }
+        ratingStats.replaceRating(oldRating, newRating);
+    }
+
+    private void validateRating(int rating) {
+        if (rating < 0 || rating > 5){
+            throw new IllegalArgumentException("Rating must be between 0 and 5, got: " + rating);
+        }
     }
 }
