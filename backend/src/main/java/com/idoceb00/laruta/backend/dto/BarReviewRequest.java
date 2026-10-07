@@ -13,7 +13,6 @@ public record BarReviewRequest(
         Integer rating
 ) {
 
-        // A review needs a rating or notes
         @AssertTrue(message = "A review must have a rating or notes")
         public boolean isNotEmpty() {
             return rating != null || (notes != null && !notes.isBlank());

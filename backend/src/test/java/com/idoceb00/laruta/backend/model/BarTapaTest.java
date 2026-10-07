@@ -111,7 +111,7 @@ class BarTapaTest {
     void replaceRating_whenChangedOutOfRange_throwsAndKeepsAggregates() {
         barTapa.replaceRating(null, 5);
 
-        assertThatThrownBy(() -> barTapa.replaceRating(5, 11))
+        assertThatThrownBy(() -> barTapa.replaceRating(5, 6))
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> barTapa.replaceRating(5, -1))
                 .isInstanceOf(IllegalArgumentException.class);
