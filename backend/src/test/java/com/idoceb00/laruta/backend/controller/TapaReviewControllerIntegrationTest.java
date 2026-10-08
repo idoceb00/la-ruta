@@ -2,10 +2,15 @@ package com.idoceb00.laruta.backend.controller;
 
 import com.idoceb00.laruta.backend.model.Bar;
 import com.idoceb00.laruta.backend.model.BarTapa;
+import com.idoceb00.laruta.backend.model.Community;
+import com.idoceb00.laruta.backend.model.CommunityRole;
+import com.idoceb00.laruta.backend.model.Membership;
 import com.idoceb00.laruta.backend.model.Tapa;
 import com.idoceb00.laruta.backend.model.User;
 import com.idoceb00.laruta.backend.repository.BarRepository;
 import com.idoceb00.laruta.backend.repository.BarTapaRepository;
+import com.idoceb00.laruta.backend.repository.CommunityRepository;
+import com.idoceb00.laruta.backend.repository.MembershipRepository;
 import com.idoceb00.laruta.backend.repository.TapaRepository;
 import com.idoceb00.laruta.backend.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,21 +50,23 @@ class TapaReviewControllerIntegrationTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private CommunityRepository communityRepository;
+
+    @Autowired
+    private MembershipRepository membershipRepository;
+
     private Bar bar;
     private Tapa tapa;
     private User user;
 
     @BeforeEach
     void setUp() {
-        bar = barRepository.save(new Bar(
-                "Anaikal",
-                "León",
-                "Calle Jesús Rubio",
-                "Colegio San Claudio")
-        );
+        user = createUser("Roberto");
+        Community community = createCommunityWithAdmin("Los del barrio", "ABCD2345", user);
+        bar = saveBar(community, "Anaikal");
         tapa = tapaRepository.save(new Tapa("alitas"));
         barTapaRepository.save(new BarTapa(bar, tapa));
-        user = createUser("Roberto");
     }
 
     // ----- Rating -----
@@ -334,5 +341,21 @@ class TapaReviewControllerIntegrationTest {
 
     private User createUser(String username) {
         return userRepository.save(new User(username, "password"));
+    }
+
+    private Community createCommunityWithAdmin(String name, String inviteCode, User admin) {
+        Community community = communityRepository.save(new Community(name, inviteCode));
+        membershipRepository.save(new Membership(community, admin, CommunityRole.ADMIN));
+        return community;
+    }
+
+    private Bar saveBar(Community owner, String name) {
+        return barRepository.save(new Bar(
+                owner,
+                name,
+                "León",
+                "Calle Jesús Rubio",
+                "Colegio San Claudio")
+        );
     }
 }

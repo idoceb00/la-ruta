@@ -1,7 +1,9 @@
 package com.idoceb00.laruta.backend.model;
 
 import com.idoceb00.laruta.backend.repository.BarRepository;
+import com.idoceb00.laruta.backend.repository.CommunityRepository;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,13 +18,24 @@ class BaseEntityAuditingTest {
     @Autowired
     private BarRepository barRepository;
 
+    @Autowired
+    private CommunityRepository communityRepository;
+
     private Long barId;
+    private Community community;
+
+    @BeforeEach
+    void setUp() {
+        // This test is not transactional: the invite code must never clash with the generated ones
+        community = communityRepository.save(new Community("Auditoría", "AUDITTEST"));
+    }
 
     @AfterEach
     void cleanUp() {
         if (barId != null) {
             barRepository.deleteById(barId);
         }
+        communityRepository.delete(community);
     }
 
     @Test
@@ -55,6 +68,6 @@ class BaseEntityAuditingTest {
     }
 
     private Bar newBar() {
-        return new Bar("Test Bar", "León", "Calle Ancha 1", "Centro");
+        return new Bar(community, "Test Bar", "León", "Calle Ancha 1", "Centro");
     }
 }

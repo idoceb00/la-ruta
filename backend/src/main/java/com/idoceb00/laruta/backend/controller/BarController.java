@@ -17,12 +17,6 @@ public class BarController {
 
     private final BarService barService;
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public BarResponse createBar(@Valid @RequestBody BarRequest barRequest){
-        return barService.createBar(barRequest);
-    }
-
     @GetMapping("/{id}")
     public BarResponse getBarById(@PathVariable Long id){
         return barService.findById(id);

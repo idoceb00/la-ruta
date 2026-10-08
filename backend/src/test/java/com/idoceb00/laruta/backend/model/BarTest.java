@@ -23,6 +23,7 @@ class BarTest {
     @BeforeEach
     void setUp() {
         bar = new Bar(
+                new Community("Los del barrio", "ABCD2345"),
                 "Anaikal",
                 "León",
                 "Calle Jesús Rubio",

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 
 @Entity
@@ -12,6 +14,11 @@ import lombok.NoArgsConstructor;
 // Constructor required for reading rows via JPA
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Bar extends BaseEntity {
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "community_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Community community;
 
     @Column(nullable = false)
     private String name;
@@ -32,7 +39,8 @@ public class Bar extends BaseEntity {
     @Version
     private Long version;
 
-    public Bar(String name, String city, String address, String zone) {
+    public Bar(Community community, String name, String city, String address, String zone) {
+        this.community = community;
         this.name = name;
         this.city = city;
         this.address = address;

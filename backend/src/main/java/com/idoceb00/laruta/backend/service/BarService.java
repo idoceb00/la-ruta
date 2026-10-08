@@ -18,18 +18,6 @@ public class BarService {
 
     private final BarRepository barRepository;
 
-    @Transactional
-    public BarResponse createBar(BarRequest request) {
-        Bar bar = new Bar(
-                request.name(),
-                request.city(),
-                request.address(),
-                request.zone()
-        );
-
-        return BarResponse.from(barRepository.save(bar));
-    }
-
     @Transactional(readOnly = true)
     public BarResponse findById(Long id) {
         Bar bar = barRepository.findById(id).orElseThrow(() -> new BarNotFoundException("Bar not found with id: " + id));
