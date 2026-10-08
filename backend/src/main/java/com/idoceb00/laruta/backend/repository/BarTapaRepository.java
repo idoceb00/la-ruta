@@ -13,14 +13,16 @@ public interface BarTapaRepository extends JpaRepository<BarTapa, Long> {
     List<BarTapa> findByTapaId(Long tapaId);
     Optional<BarTapa> findByBarIdAndTapaId(Long barId, Long tapaId);
     boolean existsByBarIdAndTapaId(Long barId, Long tapaId);
-    // Bars serving a tapa, best rated first. Unrated ones go last; with the same average, more ratings first.
+    // Bars of a community serving a tapa, best rated first. Unrated ones go last; with the same average, more ratings first.
     @Query("""
         SELECT bt FROM BarTapa bt
         JOIN FETCH bt.bar
         JOIN FETCH bt.tapa
         WHERE bt.tapa.id = :tapaId
+          AND bt.bar.community.id = :communityId
         ORDER BY bt.ratingStats.ratingSum * 1.0 / NULLIF(bt.ratingStats.ratingCount, 0) DESC NULLS LAST,
                  bt.ratingStats.ratingCount DESC
         """)
-    List<BarTapa> findByTapaIdOrderByAverageRatingDesc(@Param("tapaId") Long tapaId);
+    List<BarTapa> findByTapaIdAndCommunityIdOrderByAverageRatingDesc(@Param("tapaId") Long tapaId,
+                                                                     @Param("communityId") Long communityId);
 }

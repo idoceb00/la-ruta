@@ -13,6 +13,7 @@ class BarTapaTest {
     @BeforeEach
     void setUp() {
         barTapa = new BarTapa(new Bar(
+                new Community("Los del barrio", "ABCD2345"),
                 "Anaikal",
                 "León",
                 "Calle Jesús Rubio",

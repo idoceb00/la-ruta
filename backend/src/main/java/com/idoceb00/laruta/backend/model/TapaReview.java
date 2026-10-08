@@ -21,8 +21,8 @@ public class TapaReview extends BaseEntity{
     @OnDelete(action = OnDeleteAction.CASCADE)
     private BarTapa barTapa;
 
-    // TODO: ON DELETE CASCADE bypasses Java, so deleting a user would leave BarTapa rating aggregates out of sync.
-    //  User deletion must update affected bar tapas before deleting.
+    // Safety net only: account deletion removes reviews in Java first (leave rules),
+    // so rating aggregates are updated before this cascade could apply
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)

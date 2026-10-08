@@ -5,6 +5,7 @@ import com.idoceb00.laruta.backend.dto.UserResponse;
 import com.idoceb00.laruta.backend.exception.UserNotFoundException;
 import com.idoceb00.laruta.backend.exception.UsernameAlreadyExistsException;
 import com.idoceb00.laruta.backend.model.User;
+import com.idoceb00.laruta.backend.repository.MembershipRepository;
 import com.idoceb00.laruta.backend.repository.UserRepository;
 import com.idoceb00.laruta.backend.security.CurrentUserProvider;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final MembershipRepository membershipRepository;
+    private final CommunityService communityService;
     private final PasswordEncoder passwordEncoder;
     private final CurrentUserProvider currentUserProvider;
 
@@ -44,8 +47,10 @@ public class UserService {
         if (!userRepository.existsById(userId)){
             throw new UserNotFoundException("User not found with id: " + userId);
         }
-        userRepository.deleteById(userId);
 
+        // Deleting the account is leaving every community first, so rating aggregates stay in sync
+        membershipRepository.findByUserId(userId).forEach(communityService::leave);
+        userRepository.deleteById(userId);
     }
 
 }

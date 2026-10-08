@@ -11,41 +11,36 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/bars")
 @RequiredArgsConstructor
 public class BarController {
 
     private final BarService barService;
 
-    @PostMapping
+    @PostMapping("/api/communities/{communityId}/bars")
     @ResponseStatus(HttpStatus.CREATED)
-    public BarResponse createBar(@Valid @RequestBody BarRequest barRequest){
-        return barService.createBar(barRequest);
-    }
-
-    @GetMapping("/{id}")
-    public BarResponse getBarById(@PathVariable Long id){
-        return barService.findById(id);
+    public BarResponse createBar(@PathVariable Long communityId, @Valid @RequestBody BarRequest barRequest) {
+        return barService.createBar(communityId, barRequest);
     }
 
     // Same endpoint for listing all items or dynamic search. Optional parameter
-    @GetMapping
-    public List<BarResponse> getBars(@RequestParam(required = false) String q){
-        if (q == null || q.isBlank()){
-            return barService.findAll();
-        }
-
-        return barService.searchBar(q);
+    @GetMapping("/api/communities/{communityId}/bars")
+    public List<BarResponse> getBars(@PathVariable Long communityId, @RequestParam(required = false) String query) {
+        return barService.getBars(communityId, query);
     }
 
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteBarById(@PathVariable Long id){
-        barService.deleteById(id);
+    @GetMapping("/api/bars/{id}")
+    public BarResponse getBarById(@PathVariable Long id) {
+        return barService.findById(id);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/api/bars/{id}")
     public BarResponse updateBar(@PathVariable Long id, @Valid @RequestBody BarRequest barRequest) {
         return barService.updateBar(id, barRequest);
+    }
+
+    @DeleteMapping("/api/bars/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteBarById(@PathVariable Long id) {
+        barService.deleteById(id);
     }
 }

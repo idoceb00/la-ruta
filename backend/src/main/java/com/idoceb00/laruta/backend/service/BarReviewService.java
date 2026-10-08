@@ -24,11 +24,13 @@ public class BarReviewService {
     private final BarRepository barRepository;
     private final UserRepository userRepository;
     private final CurrentUserProvider currentUserProvider;
+    private final MembershipService membershipService;
 
     @Transactional
     public BarReviewResponse saveReview(Long barId, BarReviewRequest barReviewRequest){
         Bar bar = findBarOrThrow(barId);
         User user = findUserOrThrow(currentUserProvider.getCurrentUserId());
+        membershipService.requireMembership(bar.getCommunity().getId());
         String notes = barReviewRequest.notes();
         Integer newRating = barReviewRequest.rating();
 
@@ -54,6 +56,8 @@ public class BarReviewService {
 
     @Transactional
     public void deleteReview(Long barId) {
+        Bar bar = findBarOrThrow(barId);
+        membershipService.requireMembership(bar.getCommunity().getId());
         Long userId = currentUserProvider.getCurrentUserId();
         BarReview barReview = barReviewRepository.findByBarIdAndUserId(barId, userId)
                 .orElseThrow(() -> new BarReviewNotFoundException("Review not found for bar " + barId + " and user " + userId));
