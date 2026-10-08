@@ -83,4 +83,10 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleInvalidCredentials(InvalidCredentialsException ex) {
         return ErrorResponse.of(HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
     }
+
+    @ExceptionHandler(TapaReviewNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleTapaReviewNotFound(TapaReviewNotFoundException ex) {
+        return ErrorResponse.of(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+    }
 }

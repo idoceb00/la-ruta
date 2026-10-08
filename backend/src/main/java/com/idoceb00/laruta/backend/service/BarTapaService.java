@@ -55,7 +55,8 @@ public class BarTapaService {
 
     @Transactional
     public void removeTapaFromBar(Long barId, Long tapaId) {
-        BarTapa barTapa = barTapaRepository.findByBarIdAndTapaId(barId, tapaId).orElseThrow(() -> new BarTapaNotFoundException("Tapa with id: " + tapaId + " not found in bar with id: " + barId));
+        BarTapa barTapa = barTapaRepository.findByBarIdAndTapaId(barId, tapaId)
+                .orElseThrow(() -> new BarTapaNotFoundException("Tapa with id: " + tapaId + " not found in bar with id: " + barId));
 
         barTapaRepository.delete(barTapa);
     }
