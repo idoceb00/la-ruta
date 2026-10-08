@@ -89,4 +89,22 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleTapaReviewNotFound(TapaReviewNotFoundException ex) {
         return ErrorResponse.of(HttpStatus.NOT_FOUND.value(), ex.getMessage());
     }
+
+    @ExceptionHandler(CommunityNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleCommunityNotFound(CommunityNotFoundException ex) {
+        return ErrorResponse.of(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+    }
+
+    @ExceptionHandler(NotCommunityMemberException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleNotCommunityMember(NotCommunityMemberException ex) {
+        return ErrorResponse.of(HttpStatus.FORBIDDEN.value(), ex.getMessage());
+    }
+
+    @ExceptionHandler(MembershipAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleMembershipAlreadyExists(MembershipAlreadyExistsException ex) {
+        return ErrorResponse.of(HttpStatus.CONFLICT.value(), ex.getMessage());
+    }
 }

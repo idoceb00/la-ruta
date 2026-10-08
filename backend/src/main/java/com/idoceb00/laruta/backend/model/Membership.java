@@ -32,7 +32,6 @@ public class Membership extends BaseEntity {
         this.role = role;
     }
 
-    // Not exposed as an endpoint: only the leave rules promote the oldest member
     public void promoteToAdmin() {
         this.role = CommunityRole.ADMIN;
     }
