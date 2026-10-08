@@ -33,9 +33,9 @@ public class BarTapaController {
         barTapaService.removeTapaFromBar(barId, tapaId);
     }
 
-    @GetMapping("/api/tapas/{tapaId}/bars")
-    public List<BarTapaResponse> getBarsWithTapa(@PathVariable Long tapaId) {
-        return barTapaService.getBarsWithTapa(tapaId);
+    @GetMapping("/api/communities/{communityId}/tapas/{tapaId}/bars")
+    public List<BarTapaResponse> getBarsWithTapa(@PathVariable Long communityId, @PathVariable Long tapaId) {
+        return barTapaService.getBarsWithTapa(communityId, tapaId);
     }
 
 }

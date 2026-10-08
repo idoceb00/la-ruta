@@ -59,11 +59,12 @@ class TapaReviewControllerIntegrationTest {
     private Bar bar;
     private Tapa tapa;
     private User user;
+    private Community community;
 
     @BeforeEach
     void setUp() {
-        user = createUser("Roberto");
-        Community community = createCommunityWithAdmin("Los del barrio", "ABCD2345", user);
+        user = userRepository.save(new User("Roberto", "password"));
+        community = createCommunityWithAdmin("Los del barrio", "ABCD2345", user);
         bar = saveBar(community, "Anaikal");
         tapa = tapaRepository.save(new Tapa("alitas"));
         barTapaRepository.save(new BarTapa(bar, tapa));
@@ -340,7 +341,10 @@ class TapaReviewControllerIntegrationTest {
     }
 
     private User createUser(String username) {
-        return userRepository.save(new User(username, "password"));
+        User user = userRepository.save(new User(username, "password"));
+        // Rating a tapa requires being a member of the bar's community
+        membershipRepository.save(new Membership(community, user, CommunityRole.MEMBER));
+        return user;
     }
 
     private Community createCommunityWithAdmin(String name, String inviteCode, User admin) {

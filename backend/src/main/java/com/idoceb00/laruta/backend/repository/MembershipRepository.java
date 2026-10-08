@@ -10,6 +10,7 @@ import java.util.Optional;
 
 public interface MembershipRepository extends JpaRepository<Membership, Long> {
     Optional<Membership> findByCommunityIdAndUserId(Long communityId, Long userId);
+    boolean existsByCommunityIdAndUserId(Long communityId, Long userId);
 
     // Community fetched in the same query: listing a user's communities must not lazy-load one per row
     @Query("""

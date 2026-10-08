@@ -48,11 +48,12 @@ class BarReviewControllerIntegrationTest {
 
     private Bar bar;
     private User user;
+    private Community community;
 
     @BeforeEach
     void setUp() {
-        user = createUser("Roberto");
-        Community community = createCommunityWithAdmin("Los del barrio", "ABCD2345", user);
+        user = userRepository.save(new User("Roberto", "password"));
+        community = createCommunityWithAdmin("Los del barrio", "ABCD2345", user);
         bar = saveBar(community, "Anaikal");
     }
 
@@ -303,7 +304,10 @@ class BarReviewControllerIntegrationTest {
     }
 
     private User createUser(String username) {
-        return userRepository.save(new User(username, "password"));
+        User user = userRepository.save(new User(username, "password"));
+        // Rating a bar requires being a member of its community
+        membershipRepository.save(new Membership(community, user, CommunityRole.MEMBER));
+        return user;
     }
 
     private Community createCommunityWithAdmin(String name, String inviteCode, User admin) {

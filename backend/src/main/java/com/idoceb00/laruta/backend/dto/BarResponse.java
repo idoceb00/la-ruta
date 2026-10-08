@@ -6,6 +6,7 @@ import java.time.Instant;
 
 public record BarResponse(
         Long id,
+        Long communityId,
         String name,
         String city,
         String address,
@@ -18,6 +19,7 @@ public record BarResponse(
     public static BarResponse from(Bar bar) {
         return new BarResponse(
                 bar.getId(),
+                bar.getCommunity().getId(),
                 bar.getName(),
                 bar.getCity(),
                 bar.getAddress(),

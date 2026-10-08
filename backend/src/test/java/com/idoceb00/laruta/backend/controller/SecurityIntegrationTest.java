@@ -1,8 +1,13 @@
 package com.idoceb00.laruta.backend.controller;
 
 import com.idoceb00.laruta.backend.model.Bar;
+import com.idoceb00.laruta.backend.model.Community;
+import com.idoceb00.laruta.backend.model.CommunityRole;
+import com.idoceb00.laruta.backend.model.Membership;
 import com.idoceb00.laruta.backend.model.User;
 import com.idoceb00.laruta.backend.repository.BarRepository;
+import com.idoceb00.laruta.backend.repository.CommunityRepository;
+import com.idoceb00.laruta.backend.repository.MembershipRepository;
 import com.idoceb00.laruta.backend.repository.UserRepository;
 import com.idoceb00.laruta.backend.service.TokenService;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,24 +50,32 @@ class SecurityIntegrationTest {
     private BarRepository barRepository;
 
     @Autowired
+    private CommunityRepository communityRepository;
+
+    @Autowired
+    private MembershipRepository membershipRepository;
+
+    @Autowired
     private TokenService tokenService;
 
     @Autowired
     private JwtEncoder jwtEncoder;
 
     private User user;
+    private Community community;
     private String token;
 
     // Tokens are generated directly with TokenService: the login flow has its own tests
     @BeforeEach
     void setUp() {
         user = userRepository.save(new User("Roberto", "password"));
+        community = createCommunityWithAdmin("Los del barrio", "ABCD2345", user);
         token = tokenService.generateToken(user);
     }
 
     @Test
     void getBars_whenNoToken_returnsUnauthorized() throws Exception {
-        mockMvc.perform(get("/api/bars"))
+        mockMvc.perform(get("/api/communities/{communityId}/bars", community.getId()))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -96,7 +109,7 @@ class SecurityIntegrationTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/bars")
+        mockMvc.perform(post("/api/communities/{communityId}/bars", community.getId())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
@@ -109,8 +122,14 @@ class SecurityIntegrationTest {
     }
 
     private ResultActions getBars(String token) throws Exception {
-        return mockMvc.perform(get("/api/bars")
+        return mockMvc.perform(get("/api/communities/{communityId}/bars", community.getId())
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token));
+    }
+
+    private Community createCommunityWithAdmin(String name, String inviteCode, User admin) {
+        Community community = communityRepository.save(new Community(name, inviteCode));
+        membershipRepository.save(new Membership(community, admin, CommunityRole.ADMIN));
+        return community;
     }
 
     // Changes one character of the payload: the signature no longer matches

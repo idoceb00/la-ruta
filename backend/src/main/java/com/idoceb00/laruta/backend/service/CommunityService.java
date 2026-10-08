@@ -75,7 +75,7 @@ public class CommunityService {
                         "Community not found with invite code: " + inviteCode));
         User user = findUserOrThrow(currentUserProvider.getCurrentUserId());
 
-        if (membershipRepository.findByCommunityIdAndUserId(community.getId(), user.getId()).isPresent()) {
+        if (membershipRepository.existsByCommunityIdAndUserId(community.getId(), user.getId())) {
             throw new MembershipAlreadyExistsException(
                     "User " + user.getId() + " is already a member of community " + community.getId());
         }

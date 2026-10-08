@@ -138,6 +138,42 @@ class CommunityBarsIntegrationTest {
                 .andExpect(status().isForbidden());
     }
 
+    // ----- Bars serving a tapa -----
+
+    @Test
+    void getBarsWithTapa_whenMember_returnsOnlyBarsOfThatCommunity() throws Exception {
+        Community other = createCommunityWithAdmin("Los del curro", "WXYZ6789", createUser("Alberto"));
+        Bar mine = saveBar(community, "Anaikal");
+        Bar otherBar = saveBar(other, "El Rebote");
+        Tapa tapa = tapaRepository.save(new Tapa("alitas"));
+        barTapaRepository.save(new BarTapa(mine, tapa));
+        barTapaRepository.save(new BarTapa(otherBar, tapa));
+
+        getBarsWithTapa(community.getId(), tapa.getId(), user.getId())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].barId").value(mine.getId()));
+    }
+
+    @Test
+    void getBarsWithTapa_whenNotMember_returnsForbidden() throws Exception {
+        User outsider = createUser("Intruso");
+        Bar bar = saveBar(community, "Anaikal");
+        Tapa tapa = tapaRepository.save(new Tapa("alitas"));
+        barTapaRepository.save(new BarTapa(bar, tapa));
+
+        getBarsWithTapa(community.getId(), tapa.getId(), outsider.getId())
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void getBarsWithTapa_whenCommunityDoesNotExist_returnsNotFound() throws Exception {
+        Tapa tapa = tapaRepository.save(new Tapa("alitas"));
+
+        getBarsWithTapa(999_999L, tapa.getId(), user.getId())
+                .andExpect(status().isNotFound());
+    }
+
     // ----- Access to a bar and its resources -----
 
     @Test
@@ -252,6 +288,11 @@ class CommunityBarsIntegrationTest {
 
     private ResultActions getBars(Long communityId, Long userId) throws Exception {
         return mockMvc.perform(get("/api/communities/{communityId}/bars", communityId)
+                .with(authenticatedAs(userId)));
+    }
+
+    private ResultActions getBarsWithTapa(Long communityId, Long tapaId, Long userId) throws Exception {
+        return mockMvc.perform(get("/api/communities/{communityId}/tapas/{tapaId}/bars", communityId, tapaId)
                 .with(authenticatedAs(userId)));
     }
 

@@ -53,7 +53,7 @@ class BarControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        user = createUser("Roberto");
+        user = userRepository.save(new User("Roberto", "password"));
         community = createCommunityWithAdmin("Los del barrio", "ABCD2345", user);
         bar = saveBar(community, "Anaikal");
     }
@@ -83,7 +83,8 @@ class BarControllerIntegrationTest {
         Bar otherBar = saveBar(community, "El Rebote");
         rate(bar.getId(), user.getId(), 8);
 
-        mockMvc.perform(get("/api/bars").with(authenticatedAs(user.getId())))
+        mockMvc.perform(get("/api/communities/{communityId}/bars", community.getId())
+                        .with(authenticatedAs(user.getId())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[?(@.id == %d)].averageRating", bar.getId()).value(contains(8.0)))
                 .andExpect(jsonPath("$[?(@.id == %d)].ratingCount", bar.getId()).value(contains(1)))
@@ -108,7 +109,10 @@ class BarControllerIntegrationTest {
     }
 
     private User createUser(String username) {
-        return userRepository.save(new User(username, "password"));
+        User user = userRepository.save(new User(username, "password"));
+        // Rating a bar requires being a member of its community
+        membershipRepository.save(new Membership(community, user, CommunityRole.MEMBER));
+        return user;
     }
 
     private Community createCommunityWithAdmin(String name, String inviteCode, User admin) {
