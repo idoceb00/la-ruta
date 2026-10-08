@@ -50,7 +50,7 @@ public class BarTapaService {
     public List<BarTapaResponse> getBarsWithTapa(Long tapaId) {
         tapaService.getById(tapaId);
 
-        return barTapaRepository.findByTapaId(tapaId).stream().map(BarTapaResponse::from).toList();
+        return barTapaRepository.findByTapaIdOrderByAverageRatingDesc(tapaId).stream().map(BarTapaResponse::from).toList();
     }
 
     @Transactional
