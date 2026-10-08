@@ -12,9 +12,14 @@ public record TapaReviewRequest(
         @Min(value = 0, message = "Rating must be between 0 and 5") @Max(value = 5, message = "Rating must be between 0 and 5")
         Integer rating,
 
-        boolean fav
+        Boolean fav
 ) {
-
+    // fav is a Boolean so the request accepts missing field, and this compact constructor turns it into a false.
+    public TapaReviewRequest{
+        if (fav == null){
+            fav = false;
+        }
+    }
     @AssertTrue(message = "A review must have a rating, notes or be marked as favourite")
     public boolean isNotEmpty() {
         return rating != null || fav || (notes != null && !notes.isBlank());
