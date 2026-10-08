@@ -38,4 +38,10 @@ public class CommunityController {
     public CommunityResponse joinCommunity(@Valid @RequestBody JoinCommunityRequest request) {
         return communityService.join(request);
     }
+
+    @DeleteMapping("/{communityId}/members/me")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void leaveCommunity(@PathVariable Long communityId) {
+        communityService.leaveCommunity(communityId);
+    }
 }
