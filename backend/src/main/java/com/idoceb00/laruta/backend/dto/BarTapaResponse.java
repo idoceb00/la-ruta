@@ -7,7 +7,8 @@ public record BarTapaResponse(
         String barName,
         Long tapaId,
         String tapaName,
-        Integer rating
+        Double averageRating,
+        long ratingCount
 ) {
     public static BarTapaResponse from(BarTapa barTapa) {
         return new BarTapaResponse(
@@ -15,7 +16,8 @@ public record BarTapaResponse(
                 barTapa.getBar().getName(),
                 barTapa.getTapa().getId(),
                 barTapa.getTapa().getName(),
-                barTapa.getRating()
+                barTapa.getAverageRating(),
+                barTapa.getRatingCount()
         );
     }
 }

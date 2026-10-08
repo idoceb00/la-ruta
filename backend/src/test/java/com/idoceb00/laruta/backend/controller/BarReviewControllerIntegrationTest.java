@@ -12,10 +12,10 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static com.idoceb00.laruta.backend.testutil.TestAuth.authenticatedAs;
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-class BarRatingControllerIntegrationTest {
+class BarReviewControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -44,14 +44,15 @@ class BarRatingControllerIntegrationTest {
                 "Anaikal",
                 "León",
                 "Calle Jesús Rubio",
-                "Colegio San Claudio",
-                "El arroz picante está realmente bueno.")
+                "Colegio San Claudio")
         );
         user = createUser("Roberto");
     }
 
+    // ----- Rating -----
+
     @Test
-    void rateBar_whenNoPreviousRating_createsItAndReturnsStats() throws Exception {
+    void saveReview_whenNoPreviousReview_createsItAndReturnsStats() throws Exception {
         rate(bar.getId(), user.getId(), 8)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userRating").value(8))
@@ -60,7 +61,7 @@ class BarRatingControllerIntegrationTest {
     }
 
     @Test
-    void rateBar_whenSameUserRatesTwice_updatesInsteadOfDuplicating() throws Exception {
+    void saveReview_whenSameUserRatesTwice_updatesInsteadOfDuplicating() throws Exception {
         rate(bar.getId(), user.getId(), 8);
 
         rate(bar.getId(), user.getId(), 6)
@@ -71,7 +72,7 @@ class BarRatingControllerIntegrationTest {
     }
 
     @Test
-    void rateBar_whenTwoUsersRate_returnsAverage() throws Exception {
+    void saveReview_whenTwoUsersRate_returnsAverage() throws Exception {
         User user2 = createUser("Alberto");
         rate(bar.getId(), user.getId(), 10);
 
@@ -83,7 +84,7 @@ class BarRatingControllerIntegrationTest {
     }
 
     @Test
-    void rateBar_whenAverageHasManyDecimals_roundsToOneDecimal() throws Exception {
+    void saveReview_whenAverageHasManyDecimals_roundsToOneDecimal() throws Exception {
         User user2 = createUser("Alberto");
         User user3 = createUser("Jorge");
         rate(bar.getId(), user.getId(), 8);
@@ -96,7 +97,7 @@ class BarRatingControllerIntegrationTest {
     }
 
     @Test
-    void rateBar_whenRatingOutOfRange_returnsBadRequest() throws Exception {
+    void saveReview_whenRatingOutOfRange_returnsBadRequest() throws Exception {
         rate(bar.getId(), user.getId(), 11)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Validation failed"));
@@ -107,7 +108,7 @@ class BarRatingControllerIntegrationTest {
     }
 
     @Test
-    void rateBar_whenRatingIsZeroOrTen_isAccepted() throws Exception {
+    void saveReview_whenRatingIsZeroOrTen_isAccepted() throws Exception {
         rate(bar.getId(), user.getId(), 0)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userRating").value(0));
@@ -117,31 +118,96 @@ class BarRatingControllerIntegrationTest {
                 .andExpect(jsonPath("$.userRating").value(10));
     }
 
+    // ----- Notes and optional rating -----
+
     @Test
-    void rateBar_whenRatingMissing_returnsBadRequest() throws Exception {
+    void saveReview_whenOnlyNotes_savesReviewWithoutAffectingStats() throws Exception {
         String body = """
-                { }
+                { "notes": "Great croquettes" }
                 """;
 
-        rateWithBody(bar.getId(), user.getId(), body)
+        saveReview(bar.getId(), user.getId(), body)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.notes").value("Great croquettes"))
+                .andExpect(jsonPath("$.userRating").value(nullValue()))
+                .andExpect(jsonPath("$.averageRating").value(nullValue()))
+                .andExpect(jsonPath("$.ratingCount").value(0));
+    }
+
+    @Test
+    void saveReview_whenAddingRatingToNotesOnlyReview_countsIt() throws Exception {
+        saveReview(bar.getId(), user.getId(), """
+                { "notes": "Great croquettes" }
+                """);
+
+        saveReview(bar.getId(), user.getId(), """
+                { "notes": "Great croquettes", "rating": 9 }
+                """)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userRating").value(9))
+                .andExpect(jsonPath("$.averageRating").value(9.0))
+                .andExpect(jsonPath("$.ratingCount").value(1));
+    }
+
+    @Test
+    void saveReview_whenRemovingRating_keepsNotesAndUncountsIt() throws Exception {
+        saveReview(bar.getId(), user.getId(), """
+                { "notes": "Great croquettes", "rating": 9 }
+                """);
+
+        saveReview(bar.getId(), user.getId(), """
+                { "notes": "Great croquettes" }
+                """)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.notes").value("Great croquettes"))
+                .andExpect(jsonPath("$.userRating").value(nullValue()))
+                .andExpect(jsonPath("$.averageRating").value(nullValue()))
+                .andExpect(jsonPath("$.ratingCount").value(0));
+    }
+
+    @Test
+    void saveReview_whenNotesChange_updatesThem() throws Exception {
+        saveReview(bar.getId(), user.getId(), """
+                { "notes": "Too crowded", "rating": 6 }
+                """);
+
+        saveReview(bar.getId(), user.getId(), """
+                { "notes": "Quieter on weekdays", "rating": 6 }
+                """)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.notes").value("Quieter on weekdays"))
+                .andExpect(jsonPath("$.ratingCount").value(1));
+    }
+
+    @Test
+    void saveReview_whenNoRatingAndNoNotes_returnsBadRequest() throws Exception {
+        saveReview(bar.getId(), user.getId(), """
+                { }
+                """)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Validation failed"));
+
+        saveReview(bar.getId(), user.getId(), """
+                { "notes": "   " }
+                """)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Validation failed"));
     }
 
-    @Test
-    void rateBar_whenNotAuthenticated_returnsUnauthorized() throws Exception {
-        String body = """
-                { "rating": 8 }
-                """;
+    // ----- Errors and auth -----
 
-        mockMvc.perform(put("/api/bars/{barId}/rating", bar.getId())
+    @Test
+    void saveReview_whenNotAuthenticated_returnsUnauthorized() throws Exception {
+        mockMvc.perform(put("/api/bars/{barId}/review", bar.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
+                        .content("""
+                                { "rating": 8 }
+                                """))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void rateBar_whenBarDoesNotExist_returnsNotFound() throws Exception {
+    void saveReview_whenBarDoesNotExist_returnsNotFound() throws Exception {
         Long nonExistentBarId = bar.getId() + 1000;
 
         rate(nonExistentBarId, user.getId(), 8)
@@ -152,7 +218,7 @@ class BarRatingControllerIntegrationTest {
 
     // A valid token can outlive its user (e.g. the account was deleted)
     @Test
-    void rateBar_whenUserDoesNotExist_returnsNotFound() throws Exception {
+    void saveReview_whenUserDoesNotExist_returnsNotFound() throws Exception {
         Long nonExistentUserId = user.getId() + 1000;
 
         rate(bar.getId(), nonExistentUserId, 8)
@@ -161,24 +227,26 @@ class BarRatingControllerIntegrationTest {
                         .value("User not found with id: " + nonExistentUserId));
     }
 
+    // ----- Delete -----
+
     @Test
-    void deleteRating_whenRatingExists_returnsNoContent() throws Exception {
+    void deleteReview_whenReviewExists_returnsNoContent() throws Exception {
         rate(bar.getId(), user.getId(), 8);
 
-        deleteRating(bar.getId(), user.getId())
+        deleteReview(bar.getId(), user.getId())
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    void deleteRating_whenRatingDoesNotExist_returnsNotFound() throws Exception {
-        deleteRating(bar.getId(), user.getId())
+    void deleteReview_whenReviewDoesNotExist_returnsNotFound() throws Exception {
+        deleteReview(bar.getId(), user.getId())
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void deleteRating_whenDeleted_isExcludedFromStats() throws Exception {
+    void deleteReview_whenDeleted_isExcludedFromStats() throws Exception {
         rate(bar.getId(), user.getId(), 8);
-        deleteRating(bar.getId(), user.getId());
+        deleteReview(bar.getId(), user.getId());
 
         rate(bar.getId(), createUser("Alberto").getId(), 10)
                 .andExpect(status().isOk())
@@ -188,8 +256,23 @@ class BarRatingControllerIntegrationTest {
     }
 
     @Test
-    void deleteRating_whenNotAuthenticated_returnsUnauthorized() throws Exception {
-        mockMvc.perform(delete("/api/bars/{barId}/rating", bar.getId()))
+    void deleteReview_whenNotesOnly_keepsOtherRatings() throws Exception {
+        rate(bar.getId(), createUser("Alberto").getId(), 7);
+        saveReview(bar.getId(), user.getId(), """
+                { "notes": "Great croquettes" }
+                """);
+
+        deleteReview(bar.getId(), user.getId())
+                .andExpect(status().isNoContent());
+
+        rate(bar.getId(), createUser("Jorge").getId(), 9)
+                .andExpect(jsonPath("$.averageRating").value(8.0))
+                .andExpect(jsonPath("$.ratingCount").value(2));
+    }
+
+    @Test
+    void deleteReview_whenNotAuthenticated_returnsUnauthorized() throws Exception {
+        mockMvc.perform(delete("/api/bars/{barId}/review", bar.getId()))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -197,24 +280,19 @@ class BarRatingControllerIntegrationTest {
         String body = """
                 { "rating": %d }
                 """.formatted(rating);
-        return rateWithBody(barId, userId, body);
+        return saveReview(barId, userId, body);
     }
 
-    private ResultActions rateWithBody(Long barId, Long userId, String body) throws Exception {
-        return mockMvc.perform(put("/api/bars/{barId}/rating", barId)
+    private ResultActions saveReview(Long barId, Long userId, String body) throws Exception {
+        return mockMvc.perform(put("/api/bars/{barId}/review", barId)
                 .with(authenticatedAs(userId))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body));
     }
 
-    private ResultActions deleteRating(Long barId, Long userId) throws Exception {
-        return mockMvc.perform(delete("/api/bars/{barId}/rating", barId)
+    private ResultActions deleteReview(Long barId, Long userId) throws Exception {
+        return mockMvc.perform(delete("/api/bars/{barId}/review", barId)
                 .with(authenticatedAs(userId)));
-    }
-
-    // Simulates an already validated JWT carrying the userId claim
-    private RequestPostProcessor authenticatedAs(Long userId) {
-        return jwt().jwt(jwt -> jwt.claim("userId", userId));
     }
 
     private User createUser(String username) {

@@ -23,62 +23,43 @@ public class Bar extends BaseEntity {
 
     private String zone;
 
-    @Column(length = 1000)
-    private String notes;
-
-    @Column(nullable = false)
-    private long ratingSum = 0;
-
-    @Column(nullable = false)
-    private long ratingCount = 0;
+    @Embedded
+    @Getter(AccessLevel.NONE)
+    private RatingStats ratingStats = new RatingStats();
 
     // Hibernate increments it on every update and rejects the save if another transaction changed the row first.
     // Managed by hibernate, never set it manually.
     @Version
     private Long version;
 
-    public Bar(String name, String city, String address, String zone, String notes) {
+    public Bar(String name, String city, String address, String zone) {
         this.name = name;
         this.city = city;
         this.address = address;
         this.zone = zone;
-        this.notes = notes;
     }
 
-    public void update(String name, String city, String address, String zone, String notes) {
+    public void update(String name, String city, String address, String zone) {
         this.name = name;
         this.city = city;
         this.address = address;
         this.zone = zone;
-        this.notes = notes;
     }
 
     public Double getAverageRating() {
-        if (ratingCount == 0){
-            return null;
+        return ratingStats.getAverageRating();
+    }
+
+    public long getRatingCount() {
+        return ratingStats.getRatingCount();
+    }
+
+    // Single entry point for rating changes
+    public void replaceRating(Integer oldRating, Integer newRating) {
+        if (newRating != null) {
+            validateRating(newRating);
         }
-
-        double average = (double) ratingSum / ratingCount;
-        return Math.round(average * 10) / 10.0;
-    }
-
-    public void addRating(int rating) {
-        validateRating(rating);
-        ratingSum += rating;
-        ratingCount++;
-    }
-
-    public void changeRating(int oldRating, int newRating) {
-        validateRating(newRating);
-        ratingSum += newRating - oldRating;
-    }
-
-    public void removeRating(int rating) {
-        if (ratingCount == 0) {
-            throw new IllegalStateException("Bar has no ratings to remove");
-        }
-        ratingSum -= rating;
-        ratingCount--;
+        ratingStats.replaceRating(oldRating, newRating);
     }
 
     private void validateRating(int rating) {

@@ -24,8 +24,7 @@ public class BarService {
                 request.name(),
                 request.city(),
                 request.address(),
-                request.zone(),
-                request.notes()
+                request.zone()
         );
 
         return BarResponse.from(barRepository.save(bar));
@@ -64,7 +63,7 @@ public class BarService {
                 new BarNotFoundException("Bar not found with id: " + id)
         );
 
-        bar.update(request.name(), request.city(), request.address(), request.zone(), request.notes());
+        bar.update(request.name(), request.city(), request.address(), request.zone());
 
         return BarResponse.from(bar);
     }

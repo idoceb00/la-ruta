@@ -9,13 +9,13 @@ import org.hibernate.annotations.OnDeleteAction;
 
 
 @Entity
-@Table(name = "bar_ratings", uniqueConstraints = {
-        @UniqueConstraint(name = "UNIQUE_BAR_RATING", columnNames = {"bar_id", "user_id"})
+@Table(name = "bar_reviews", uniqueConstraints = {
+        @UniqueConstraint(name = "UNIQUE_BAR_REVIEW", columnNames = {"bar_id", "user_id"})
 })
 @Getter
 // Constructor required for reading rows via JPA
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class BarRating extends BaseEntity{
+public class BarReview extends BaseEntity{
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "bar_id", nullable = false)
@@ -29,16 +29,20 @@ public class BarRating extends BaseEntity{
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
-    @Column(nullable = false)
+    @Column(length = 1000)
+    private String notes;
+
     private Integer rating;
 
-    public BarRating(Bar bar, User user, Integer rating) {
+    public BarReview(Bar bar, User user, String notes, Integer rating) {
         this.bar = bar;
         this.user = user;
+        this.notes = notes;
         this.rating = rating;
     }
 
-    public void updateRating(Integer rating) {
+    public void update(String notes, Integer rating) {
+        this.notes = notes;
         this.rating = rating;
     }
 }

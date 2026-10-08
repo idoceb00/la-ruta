@@ -2,7 +2,6 @@ package com.idoceb00.laruta.backend.controller;
 
 import com.idoceb00.laruta.backend.dto.BarTapaRequest;
 import com.idoceb00.laruta.backend.dto.BarTapaResponse;
-import com.idoceb00.laruta.backend.dto.RatingRequest;
 import com.idoceb00.laruta.backend.service.BarTapaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,11 +25,6 @@ public class BarTapaController {
     @GetMapping("/api/bars/{barId}/tapas")
     public List<BarTapaResponse> getBarTapas(@PathVariable Long barId) {
         return barTapaService.getTapasOfBar(barId);
-    }
-
-    @PutMapping("/api/bars/{barId}/tapas/{tapaId}")
-    public BarTapaResponse updateRating(@PathVariable Long barId, @PathVariable Long tapaId, @Valid @RequestBody RatingRequest ratingRequest) {
-        return barTapaService.updateRating(barId, tapaId, ratingRequest);
     }
 
     @DeleteMapping("/api/bars/{barId}/tapas/{tapaId}")
