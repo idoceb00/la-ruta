@@ -17,9 +17,24 @@
    docker compose up -d
 ```
 3. Run the backend:
+The backend runs with the `dev` profile locally, which loads the root `.env`
+and enables SQL logging and the API docs:
+
 ```bash
-   cd backend
-   ./mvnw spring-boot:run
+cd backend
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+```
+
+In IntelliJ, set `dev` in the run configuration's active profiles.
+
+API docs (dev only): http://localhost:8080/swagger-ui.html
+
+To run the backend image against the local database:
+
+```bash
+cd backend
+docker build -t la-ruta-backend .
+docker run --rm -p 8080:8080 --env-file ../.env -e PGHOST=host.docker.internal la-ruta-backend
 ```
 
 ### Database
