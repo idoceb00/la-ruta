@@ -33,8 +33,8 @@ import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -122,6 +122,24 @@ class SecurityIntegrationTest {
         assertThat(bars).singleElement()
                 .extracting(Bar::getCreatedBy)
                 .isEqualTo(user.getId());
+    }
+
+    @Test
+    void preflight_whenOriginAllowed_returnsCorsHeaders() throws Exception {
+        mockMvc.perform(options("/api/communities")
+                        .header(HttpHeaders.ORIGIN, "http://localhost:4200")
+                        .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "POST")
+                        .header(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, "Authorization, Content-Type"))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:4200"));
+    }
+
+    @Test
+    void preflight_whenOriginNotAllowed_returnsForbidden() throws Exception {
+        mockMvc.perform(options("/api/communities")
+                        .header(HttpHeaders.ORIGIN, "https://not-allowed.example")
+                        .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "POST"))
+                .andExpect(status().isForbidden());
     }
 
     private ResultActions getBars(String token) throws Exception {
