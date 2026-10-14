@@ -1,5 +1,6 @@
 package com.idoceb00.laruta.backend.model;
 
+import com.idoceb00.laruta.backend.TestcontainersConfiguration;
 import com.idoceb00.laruta.backend.repository.BarRepository;
 import com.idoceb00.laruta.backend.repository.CommunityRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -7,11 +8,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 
 import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Import(TestcontainersConfiguration.class)
 @SpringBootTest
 class BaseEntityAuditingTest {
 

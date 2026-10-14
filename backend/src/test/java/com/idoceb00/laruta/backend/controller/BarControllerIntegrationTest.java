@@ -1,5 +1,6 @@
 package com.idoceb00.laruta.backend.controller;
 
+import com.idoceb00.laruta.backend.TestcontainersConfiguration;
 import com.idoceb00.laruta.backend.model.Bar;
 import com.idoceb00.laruta.backend.model.Community;
 import com.idoceb00.laruta.backend.model.CommunityRole;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -30,6 +32,7 @@ import static com.idoceb00.laruta.backend.testutil.TestAuth.authenticatedAs;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@Import(TestcontainersConfiguration.class)
 class BarControllerIntegrationTest {
 
     @Autowired

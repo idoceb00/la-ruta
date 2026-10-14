@@ -10,7 +10,7 @@ import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "bar_reviews", uniqueConstraints = {
-        @UniqueConstraint(name = "UNIQUE_BAR_REVIEW", columnNames = {"bar_id", "user_id"})
+        @UniqueConstraint(name = "uk_bar_reviews_bar_user", columnNames = {"bar_id", "user_id"})
 })
 @Getter
 // Constructor required for reading rows via JPA

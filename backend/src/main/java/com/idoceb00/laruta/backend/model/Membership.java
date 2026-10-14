@@ -4,10 +4,12 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "memberships", uniqueConstraints = {
-        @UniqueConstraint(name = "UNIQUE_COMMUNITY_USER", columnNames = {"community_id", "user_id"})
+        @UniqueConstraint(name = "uk_memberships_community_user", columnNames = {"community_id", "user_id"})
 })
 @Getter
 // Constructor required for reading rows via JPA
@@ -16,10 +18,12 @@ public class Membership extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "community_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Community community;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     @Enumerated(EnumType.STRING)

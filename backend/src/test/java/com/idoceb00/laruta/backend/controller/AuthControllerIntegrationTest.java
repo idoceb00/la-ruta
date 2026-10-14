@@ -1,5 +1,6 @@
 package com.idoceb00.laruta.backend.controller;
 
+import com.idoceb00.laruta.backend.TestcontainersConfiguration;
 import com.idoceb00.laruta.backend.model.User;
 import com.idoceb00.laruta.backend.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -7,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
@@ -20,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@Import(TestcontainersConfiguration.class)
 class AuthControllerIntegrationTest {
 
     private static final String PASSWORD = "password123";
