@@ -8,12 +8,7 @@ import com.idoceb00.laruta.backend.model.CommunityRole;
 import com.idoceb00.laruta.backend.model.Membership;
 import com.idoceb00.laruta.backend.model.Tapa;
 import com.idoceb00.laruta.backend.model.User;
-import com.idoceb00.laruta.backend.repository.BarRepository;
-import com.idoceb00.laruta.backend.repository.BarTapaRepository;
-import com.idoceb00.laruta.backend.repository.CommunityRepository;
-import com.idoceb00.laruta.backend.repository.MembershipRepository;
-import com.idoceb00.laruta.backend.repository.TapaRepository;
-import com.idoceb00.laruta.backend.repository.UserRepository;
+import com.idoceb00.laruta.backend.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +57,12 @@ class CommunityBarsIntegrationTest {
 
     @Autowired
     private BarTapaRepository barTapaRepository;
+
+    @Autowired
+    private BarReviewRepository barReviewRepository;
+
+    @Autowired
+    private TapaReviewRepository tapaReviewRepository;
 
     private User user;
     private Community community;
@@ -280,6 +281,66 @@ class CommunityBarsIntegrationTest {
                 .andExpect(status().isForbidden());
     }
 
+    @Test
+    void addTapaToBar_whenNotMember_returnsForbiddenAndAddsNothing() throws Exception {
+        Bar bar = saveBar(community, "Anaikal");
+        User outsider = createUser("Intruso");
+
+        mockMvc.perform(post("/api/bars/{barId}/tapas", bar.getId())
+                        .with(authenticatedAs(outsider.getId()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            { "tapaName": "bravas" }
+                            """))
+                .andExpect(status().isForbidden());
+
+        assertThat(barTapaRepository.findByBarId(bar.getId())).isEmpty();
+    }
+
+    @Test
+    void removeTapaFromBar_whenNotMember_returnsForbiddenAndKeepsTapa() throws Exception {
+        Bar bar = saveBar(community, "Anaikal");
+        Tapa tapa = tapaRepository.save(new Tapa("alitas"));
+        barTapaRepository.save(new BarTapa(bar, tapa));
+        User outsider = createUser("Intruso");
+
+        mockMvc.perform(delete("/api/bars/{barId}/tapas/{tapaId}", bar.getId(), tapa.getId())
+                        .with(authenticatedAs(outsider.getId())))
+                .andExpect(status().isForbidden());
+
+        assertThat(barTapaRepository.existsByBarIdAndTapaId(bar.getId(), tapa.getId())).isTrue();
+    }
+
+    @Test
+    void deleteBarReview_whenNotMember_returnsForbiddenAndKeepsReview() throws Exception {
+        Bar bar = saveBar(community, "Anaikal");
+        putBarReview(bar.getId(), user.getId())
+                .andExpect(status().is2xxSuccessful());
+        User outsider = createUser("Intruso");
+
+        mockMvc.perform(delete("/api/bars/{barId}/review", bar.getId())
+                        .with(authenticatedAs(outsider.getId())))
+                .andExpect(status().isForbidden());
+
+        assertThat(barReviewRepository.count()).isEqualTo(1);
+    }
+
+    @Test
+    void deleteTapaReview_whenNotMember_returnsForbiddenAndKeepsReview() throws Exception {
+        Bar bar = saveBar(community, "Anaikal");
+        Tapa tapa = tapaRepository.save(new Tapa("alitas"));
+        barTapaRepository.save(new BarTapa(bar, tapa));
+        putTapaReview(bar.getId(), tapa.getId(), user.getId())
+                .andExpect(status().is2xxSuccessful());
+        User outsider = createUser("Intruso");
+
+        mockMvc.perform(delete("/api/bars/{barId}/tapas/{tapaId}/review", bar.getId(), tapa.getId())
+                        .with(authenticatedAs(outsider.getId())))
+                .andExpect(status().isForbidden());
+
+        assertThat(tapaReviewRepository.count()).isEqualTo(1);
+    }
+
     // ----- Request helpers -----
 
     private ResultActions createBar(Long communityId, Long userId, String name) throws Exception {
@@ -318,6 +379,24 @@ class CommunityBarsIntegrationTest {
                   "zone": "Colegio San Claudio"
                 }
                 """.formatted(name);
+    }
+
+    private ResultActions putBarReview(Long barId, Long userId) throws Exception {
+        return mockMvc.perform(put("/api/bars/{barId}/review", barId)
+                .with(authenticatedAs(userId))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    { "rating": 8 }
+                    """));
+    }
+
+    private ResultActions putTapaReview(Long barId, Long tapaId, Long userId) throws Exception {
+        return mockMvc.perform(put("/api/bars/{barId}/tapas/{tapaId}/review", barId, tapaId)
+                .with(authenticatedAs(userId))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    { "rating": 4 }
+                    """));
     }
 
     // ----- Data helpers -----
