@@ -1,16 +1,10 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-
+import { Header } from './layout/header/header'
 @Component({
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, Header],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',
 })
-export class App {
-  protected readonly title = signal('La Ruta');
-
-  protected changeTitle(): void {
-    this.title.set(this.title() === 'La Ruta' ? 'Mi ruta de tapas' : 'La Ruta')
-  }
-}
+export class App {}
