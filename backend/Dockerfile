@@ -19,8 +19,8 @@ RUN groupadd --system app && useradd --system --gid app app
 COPY --from=build /app/target/*.jar app.jar
 USER app
 
-# Let the heap use most of the container memory (the JVM default is 25%)
-ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75"
+# Small CPU instances: faster startup and less memory over peak throughput
+ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75 -XX:TieredStopAtLevel=1 -XX:+UseSerialGC"
 
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
