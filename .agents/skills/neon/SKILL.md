@@ -9,3 +9,4 @@ Set up this app on Neon.
 4. Wire each service into the app's code using those env vars. Consult the installed Neon agent skills for best practices, e.g., what database driver to use given the app architecture and hosting runtime.
 5. Prove it works: `npm run build` must pass, then start the app, each wired service must be tested to prove it works end to end.
 6. Report what changed, the command output that proves step 5, and anything that failed.
+
