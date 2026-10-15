@@ -8,5 +8,9 @@ import { RouterOutlet } from '@angular/router';
   templateUrl: './app.html',
 })
 export class App {
-  protected readonly title = signal('laruta-frontend');
+  protected readonly title = signal('La Ruta');
+
+  protected changeTitle(): void {
+    this.title.set(this.title() === 'La Ruta' ? 'Mi ruta de tapas' : 'La Ruta')
+  }
 }
