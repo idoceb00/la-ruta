@@ -18,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
@@ -140,6 +141,14 @@ class SecurityIntegrationTest {
                         .header(HttpHeaders.ORIGIN, "https://not-allowed.example")
                         .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "POST"))
                 .andExpect(status().isForbidden());
+    }
+
+    // Unhandled exceptions are forwarded to /error; it must not be masked as 401
+    @Test
+    void errorEndpoint_whenUnauthenticated_isNotBlockedBySecurity() throws Exception {
+        mockMvc.perform(get("/error"))
+                .andExpect(result -> assertThat(result.getResponse().getStatus())
+                        .isNotEqualTo(HttpStatus.UNAUTHORIZED.value()));
     }
 
     private ResultActions getBars(String token) throws Exception {
