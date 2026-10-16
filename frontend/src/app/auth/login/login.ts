@@ -1,5 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import {FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { AuthService } from '../auth-service';
 
 @Component({
   imports: [ReactiveFormsModule],
@@ -9,6 +12,11 @@ import {FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 })
 export class Login {
   private readonly fb = inject(FormBuilder);
+  private readonly authservice = inject(AuthService);
+  private readonly router = inject(Router);
+
+  protected readonly loading = signal(false)
+  protected readonly errorMessage = signal<string | null>(null);
 
   protected readonly form = this.fb.nonNullable.group({
     username: ['', Validators.required],
@@ -21,7 +29,17 @@ export class Login {
       return;
     }
 
-    const { username, password } = this.form.getRawValue();
-    console.log('Login con usuario:', username);
+    this.loading.set(true)
+    this.errorMessage.set(null)
+
+    this.authservice.login(this.form.getRawValue()).subscribe({
+      next: () => this.router.navigate(['/']),
+      error: (err: HttpErrorResponse) => {
+        this.errorMessage.set(
+          err.status === 401 ? 'Usuario o contraseña incorrectos.' : 'No se ha podido conectar con el servidor'
+        );
+        this.loading.set(false)
+      }
+    });
   }
 }
