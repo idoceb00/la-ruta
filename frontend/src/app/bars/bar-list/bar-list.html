@@ -1,0 +1,9 @@
+<p class="pb-3 text-sm text-stone-500">{{ barCount() }} bares guardados</p>
+
+<section class="flex flex-col gap-3">
+  @for (bar of bars(); track bar.id) {
+    <app-bar-card [bar]="bar" />
+  } @empty {
+    <p class="text-stone-500">Todavía no tienes bares guardados.</p>
+  }
+</section>

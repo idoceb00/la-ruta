@@ -1,0 +1,35 @@
+<section class="mx-auto mt-8 max-w-sm rounded-xl bg-white p-6 shadow-sm">
+  <h2 class="mb-6 text-2xl font-semibold text-stone-800">Iniciar sesión</h2>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+    <label class="flex flex-col gap-1 text-sm text-stone-600">
+      Usuario
+      <input
+        type="text"
+        formControlName="username"
+        autocomplete="username"
+        class="rounded-lg border border-stone-300 px-3 py-2 focus:border-amber-600 focus:outline-none" />
+      @if (form.controls.username.touched && form.controls.username.invalid) {
+        <span class="text-xs text-red-600">El usuario es obligatorio.</span>
+      }
+    </label>
+
+    <label class="flex flex-col gap-1 text-sm text-stone-600">
+      Contraseña
+      <input
+        type="password"
+        formControlName="password"
+        autocomplete="current-password"
+        class="rounded-lg border border-stone-300 px-3 py-2 focus:border-amber-600 focus:outline-none" />
+      @if (form.controls.password.touched && form.controls.password.invalid) {
+        <span class="text-xs text-red-600">La contraseña es obligatoria.</span>
+      }
+    </label>
+
+    <button
+      type="submit"
+      class="mt-2 rounded-lg bg-amber-600 px-4 py-2 font-semibold text-white hover:bg-amber-700">
+      Entrar
+    </button>
+  </form>
+</section>
