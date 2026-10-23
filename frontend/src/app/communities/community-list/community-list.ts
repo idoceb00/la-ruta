@@ -3,9 +3,10 @@ import { CommunityService } from '../community-service';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { CommunityCreateForm } from '../community-create-form/community-create-form';
 import { CommunityJoinForm } from '../community-join-form/community-join-form';
+import { RouterLink } from '@angular/router';
 
 @Component({
-  imports: [CommunityCreateForm, CommunityJoinForm],
+  imports: [CommunityCreateForm, CommunityJoinForm, RouterLink],
   selector: 'app-community-list',
   styleUrl: './community-list.css',
   templateUrl: './community-list.html',

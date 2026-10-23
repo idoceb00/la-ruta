@@ -23,19 +23,19 @@
     } @else {
       <ul class="space-y-3">
         @for (community of list; track community.id) {
-          <li class="flex items-center justify-between rounded-lg border border-gray-200 p-4">
-            <div>
-              <p class="font-semibold">{{ community.name }}</p>
-              <p class="text-sm text-gray-500">
-                {{ community.memberCount }} {{ community.memberCount === 1 ? 'miembro' : 'miembros' }}
-              </p>
-            </div>
-            @if (community.role === 'ADMIN') {
-              <span class="rounded bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800">
-                Admin
-              </span>
-            }
-          </li>
+            <li>
+                <a [routerLink]="['/communities', community.id]" class="flex items-center justify-between rounded-lg border border-gray-200 p-4 hover:bg-gray-50">
+                    <div>
+                        <p class="font-semibold">{{ community.name }}</p>
+                        <p class="text-sm text-gray-500">
+                            {{ community.memberCount }} {{ community.memberCount === 1 ? 'miembro' : 'miembros' }}
+                        </p>
+                    </div>
+                    @if (community.role === 'ADMIN') {
+                        <span class="rounded bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800">Admin</span>
+                    }
+                </a>
+            </li>
         }
       </ul>
     }
