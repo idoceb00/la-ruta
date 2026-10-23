@@ -1,9 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { CommunityService } from '../community-service';
 import { rxResource } from '@angular/core/rxjs-interop';
+import { CommunityCreateForm } from '../community-create-form/community-create-form';
+import { CommunityJoinForm } from '../community-join-form/community-join-form';
 
 @Component({
-  imports: [],
+  imports: [CommunityCreateForm, CommunityJoinForm],
   selector: 'app-community-list',
   styleUrl: './community-list.css',
   templateUrl: './community-list.html',
