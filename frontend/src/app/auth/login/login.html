@@ -26,10 +26,19 @@
       }
     </label>
 
+    @if (errorMessage()) {
+      <p class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{{ errorMessage() }}</p>
+    }
+
     <button
       type="submit"
-      class="mt-2 rounded-lg bg-amber-600 px-4 py-2 font-semibold text-white hover:bg-amber-700">
-      Entrar
+      [disabled]="loading()"
+      class="mt-2 rounded-lg bg-amber-600 px-4 py-2 font-semibold text-white hover:bg-amber-700 disabled:opacity-60">
+      {{ loading() ? 'Entrando...' : 'Entrar' }}
     </button>
   </form>
+  <p class="mt-4 text-center text-sm text-stone-500">
+    ¿No tienes cuenta?
+    <a routerLink="/register" class="font-semibold text-amber-700 hover:underline">Regístrate</a>
+  </p>
 </section>
