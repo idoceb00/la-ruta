@@ -1,0 +1,40 @@
+<section class="mx-auto max-w-2xl p-4">
+  <h1 class="mb-4 text-2xl font-bold">Mis comunidades</h1>
+
+  @if (communities.isLoading()) {
+    <p class="text-gray-500">Cargando comunidades…</p>
+  } @else if (communities.error()) {
+    <div class="rounded-lg border border-red-300 bg-red-50 p-3 text-red-700">
+      <p>No se han podido cargar tus comunidades.</p>
+      <button type="button" class="mt-2 font-medium underline" (click)="communities.reload()">
+        Reintentar
+      </button>
+    </div>
+  } @else {
+    @let list = communities.value() ?? [];
+
+    @if (list.length === 0) {
+      <p class="text-gray-500">
+        Aún no estás en ninguna comunidad. Crea una o únete con un código.
+      </p>
+    } @else {
+      <ul class="space-y-3">
+        @for (community of list; track community.id) {
+          <li class="flex items-center justify-between rounded-lg border border-gray-200 p-4">
+            <div>
+              <p class="font-semibold">{{ community.name }}</p>
+              <p class="text-sm text-gray-500">
+                {{ community.memberCount }} {{ community.memberCount === 1 ? 'miembro' : 'miembros' }}
+              </p>
+            </div>
+            @if (community.role === 'ADMIN') {
+              <span class="rounded bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800">
+                Admin
+              </span>
+            }
+          </li>
+        }
+      </ul>
+    }
+  }
+</section>

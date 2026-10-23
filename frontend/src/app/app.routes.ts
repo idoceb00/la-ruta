@@ -4,6 +4,7 @@ import { Register } from './auth/register/register';
 import { BarList } from './bars/bar-list/bar-list';
 import { authGuard } from './auth/auth-guard'
 import { guestGuard } from './auth/guest-guard';
+import { CommunityList } from './communities/community-list/community-list';
 
 export const routes: Routes = [
     { path: 'login', component: Login, canActivate: [guestGuard]},
@@ -12,6 +13,8 @@ export const routes: Routes = [
         path: '',
         canActivate: [authGuard],
         children: [
+            { path: 'communities', component: CommunityList, canActivate: [authGuard]},
+            { path: '', redirectTo: 'communities', pathMatch: 'full'},
             { path: '', component: BarList}
         ]
     },
