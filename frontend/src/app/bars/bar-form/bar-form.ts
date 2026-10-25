@@ -1,21 +1,27 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { form, FormField, maxLength, pattern, required } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
 import { ActiveCommunityService } from '../../communities/active-community-service';
 import { Bar, BarRequest } from '../bar.model';
 import { BarService } from '../bar-service';
 
+interface BarFormModel {
+  name: string;
+  city: string;
+  address: string;
+  zone: string;
+}
+
 @Component({
   selector: 'app-bar-form',
-  imports: [ReactiveFormsModule, RouterLink, NgTemplateOutlet],
+  imports: [FormField, RouterLink, NgTemplateOutlet],
   templateUrl: './bar-form.html',
   styleUrl: './bar-form.css',
 })
 export class BarForm {
-  private readonly fb = inject(NonNullableFormBuilder);
   private readonly barService = inject(BarService);
   private readonly router = inject(Router);
   protected readonly active = inject(ActiveCommunityService);
@@ -32,38 +38,28 @@ export class BarForm {
     stream: ({ params: id }) => this.barService.getBar(id),
   });
 
-  protected readonly form = this.fb.group({
-    name: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(100)]],
-    city: ['', Validators.maxLength(255)],
-    address: ['', Validators.maxLength(255)],
-    zone: ['', Validators.maxLength(255)],
+  // Starts from the loaded bar (or empty) and then follows what the user types
+  private readonly model = linkedSignal(() => toFormModel(this.bar.value()));
+
+  protected readonly barForm = form(this.model, (path) => {
+    required(path.name, { message: 'El nombre es obligatorio.' });
+    pattern(path.name, /\S/, { message: 'El nombre es obligatorio.' });
+    maxLength(path.name, 100, { message: 'Máximo 100 caracteres.' });
+    maxLength(path.city, 255, { message: 'Máximo 255 caracteres.' });
+    maxLength(path.address, 255, { message: 'Máximo 255 caracteres.' });
+    maxLength(path.zone, 255, { message: 'Máximo 255 caracteres.' });
   });
 
   protected readonly saving = signal(false);
   protected readonly saveError = signal<string | null>(null);
 
-  constructor() {
-    // Fill the form once the bar to edit has loaded
-    effect(() => {
-      const bar = this.bar.value();
-      if (bar) {
-        this.form.reset({
-          name: bar.name,
-          city: bar.city ?? '',
-          address: bar.address ?? '',
-          zone: bar.zone ?? '',
-        });
-      }
-    });
-  }
-
-  protected submit(): void {
-    if (this.form.invalid || this.saving()) {
-      this.form.markAllAsTouched();
+  protected onSubmit(event: Event): void {
+    event.preventDefault();
+    if (this.barForm().invalid() || this.saving()) {
       return;
     }
 
-    const { name, city, address, zone } = this.form.getRawValue();
+    const { name, city, address, zone } = this.model();
     const request: BarRequest = {
       name: name.trim(),
       city: toNullable(city),
@@ -98,6 +94,15 @@ export class BarForm {
     const community = this.active.activeCommunity();
     return community ? this.barService.createBar(community.id, request) : null;
   }
+}
+
+function toFormModel(bar: Bar | undefined): BarFormModel {
+  return {
+    name: bar?.name ?? '',
+    city: bar?.city ?? '',
+    address: bar?.address ?? '',
+    zone: bar?.zone ?? '',
+  };
 }
 
 function toNullable(value: string): string | null {
