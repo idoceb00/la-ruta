@@ -22,9 +22,14 @@
       <p class="text-sm font-medium text-stone-700">{{ community.name }}</p>
     }
 
-    @if (bars.hasValue()) {
-      <p class="text-sm text-stone-500">{{ barCount() }} {{ barCount() === 1 ? 'bar' : 'bares' }}</p>
-    }
+    <div class="flex items-center gap-3">
+      @if (bars.hasValue()) {
+        <p class="text-sm text-stone-500">{{ barCount() }} {{ barCount() === 1 ? 'bar' : 'bares' }}</p>
+      }
+      <a routerLink="/bars/new" class="rounded-lg bg-amber-700 px-3 py-2 text-sm font-medium text-white">
+        + Añadir
+      </a>
+    </div>
   </div>
 
   @if (bars.isLoading() && !bars.hasValue()) {

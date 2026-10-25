@@ -1,0 +1,78 @@
+<section class="mx-auto max-w-2xl">
+  <a routerLink="/" class="text-sm text-stone-500 hover:underline">← Mis bares</a>
+
+  @if (bar.isLoading() && !bar.hasValue()) {
+    <p class="mt-4 text-stone-500">Cargando bar…</p>
+  } @else if (bar.error()) {
+    <div class="mt-4 rounded-lg border border-red-300 bg-red-50 p-3 text-red-700">
+      <p>No se ha encontrado el bar o no tienes acceso a él.</p>
+    </div>
+  } @else if (bar.value(); as b) {
+    <header class="mt-4 flex items-start justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-stone-800">{{ b.name }}</h1>
+        @if (location()) {
+          <p class="text-stone-500">{{ location() }}</p>
+        }
+        @if (b.address) {
+          <p class="mt-1 text-sm text-stone-500">{{ b.address }}</p>
+        }
+      </div>
+
+      @if (b.averageRating !== null) {
+        <div class="shrink-0 text-right">
+          <span class="rounded-full bg-amber-100 px-3 py-1 font-semibold text-amber-800">
+            {{ b.averageRating | number: '1.0-1' }}/10
+          </span>
+          <p class="mt-1 text-xs text-stone-500">
+            {{ b.ratingCount }} {{ b.ratingCount === 1 ? 'valoración' : 'valoraciones' }}
+          </p>
+        </div>
+      } @else {
+        <span class="shrink-0 text-sm text-stone-400">Sin valorar</span>
+      }
+    </header>
+
+    <div class="mt-8 border-t border-stone-200 pt-4">
+      @if (!confirmingDelete()) {
+        <button
+          type="button"
+          (click)="confirmingDelete.set(true)"
+          class="text-sm font-medium text-red-600 hover:underline"
+        >
+          Eliminar bar
+        </button>
+      } @else {
+        <div class="rounded-lg border border-red-300 bg-red-50 p-4">
+          <p class="font-medium text-red-800">¿Eliminar {{ b.name }}?</p>
+          <p class="mt-1 text-sm text-red-700">
+            Se borrará para toda la comunidad, junto con sus tapas y valoraciones.
+          </p>
+
+          <div class="mt-3 flex gap-2">
+            <button
+              type="button"
+              (click)="deleteBar()"
+              [disabled]="deleting()"
+              class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+            >
+              {{ deleting() ? 'Eliminando…' : 'Sí, eliminar' }}
+            </button>
+            <button
+              type="button"
+              (click)="confirmingDelete.set(false)"
+              [disabled]="deleting()"
+              class="rounded-lg border border-stone-300 px-4 py-2 text-sm font-medium disabled:opacity-50"
+            >
+              Cancelar
+            </button>
+          </div>
+
+          @if (deleteError(); as message) {
+            <p class="mt-2 text-sm text-red-700">{{ message }}</p>
+          }
+        </div>
+      }
+    </div>
+  }
+</section>

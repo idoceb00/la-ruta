@@ -1,10 +1,11 @@
 import { DecimalPipe } from '@angular/common';
 import { Component, computed, input } from '@angular/core';
 import { Bar } from '../bar.model';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-bar-card',
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, RouterLink],
   templateUrl: './bar-card.html',
   styleUrl: './bar-card.css',
 })
