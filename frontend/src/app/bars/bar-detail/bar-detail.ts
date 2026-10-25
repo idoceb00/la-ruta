@@ -3,10 +3,11 @@ import { Component, computed, inject, input, numberAttribute, signal } from '@an
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { BarService } from '../bar-service';
+import { BarLocationPipe } from '../bar-location-pipe';
 
 @Component({
   selector: 'app-bar-detail',
-  imports: [DecimalPipe, RouterLink],
+  imports: [DecimalPipe, RouterLink, BarLocationPipe],
   templateUrl: './bar-detail.html',
   styleUrl: './bar-detail.css',
 })
@@ -19,11 +20,6 @@ export class BarDetail {
   protected readonly bar = rxResource({
     params: () => this.id(),
     stream: ({ params: id }) => this.barService.getBar(id),
-  });
-
-  protected readonly location = computed(() => {
-    const bar = this.bar.value();
-    return bar ? [bar.city, bar.zone].filter(Boolean).join(' · ') : '';
   });
 
   protected readonly confirmingDelete = signal(false);

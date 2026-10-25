@@ -2,8 +2,8 @@
   <div class="flex items-start justify-between gap-3">
     <div>
       <h2 class="text-lg font-semibold text-stone-800">{{ bar().name }}</h2>
-      @if (location()) {
-        <p class="text-sm text-stone-500">{{ location() }}</p>
+      @if (bar() | barLocation; as location) {
+        <p class="text-sm text-stone-500">{{ location }}</p>
       }
     </div>
 

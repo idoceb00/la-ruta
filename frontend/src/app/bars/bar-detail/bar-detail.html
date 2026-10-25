@@ -11,8 +11,8 @@
     <header class="mt-4 flex items-start justify-between gap-4">
       <div>
         <h1 class="text-2xl font-bold text-stone-800">{{ b.name }}</h1>
-        @if (location()) {
-          <p class="text-stone-500">{{ location() }}</p>
+        @if (b | barLocation; as location) {
+          <p class="text-stone-500">{{ location }}</p>
         }
         @if (b.address) {
           <p class="mt-1 text-sm text-stone-500">{{ b.address }}</p>
