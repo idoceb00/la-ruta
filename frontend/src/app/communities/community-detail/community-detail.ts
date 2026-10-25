@@ -2,6 +2,7 @@ import { Component, inject, input, numberAttribute, signal } from '@angular/core
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { CommunityService } from '../community-service';
+import { ActiveCommunityService } from '../active-community-service';
 
 @Component({
   selector: 'app-community-detail',
@@ -32,6 +33,7 @@ export class CommunityDetail {
   }
 
   private readonly router = inject(Router);
+  private readonly activeCommunityService = inject(ActiveCommunityService);
 
   protected readonly confirmingLeave = signal(false);
   protected readonly leaving = signal(false);
@@ -47,6 +49,7 @@ export class CommunityDetail {
 
     this.communityService.leaveCommunity(this.id()).subscribe({
       next: () => {
+        this.activeCommunityService.reload();
         void this.router.navigate(['/communities']);
       },
       error: () => {
