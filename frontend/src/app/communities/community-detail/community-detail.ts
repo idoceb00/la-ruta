@@ -1,6 +1,6 @@
 import { Component, inject, input, numberAttribute, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CommunityService } from '../community-service';
 
 @Component({
@@ -29,5 +29,30 @@ export class CommunityDetail {
     } catch {
       // Clipboard API unavailable; the code is still selectable in the UI
     }
+  }
+
+  private readonly router = inject(Router);
+
+  protected readonly confirmingLeave = signal(false);
+  protected readonly leaving = signal(false);
+  protected readonly leaveError = signal<string | null>(null);
+
+  protected leave(): void {
+    if (this.leaving()) {
+      return;
+    }
+
+    this.leaving.set(true);
+    this.leaveError.set(null);
+
+    this.communityService.leaveCommunity(this.id()).subscribe({
+      next: () => {
+        void this.router.navigate(['/communities']);
+      },
+      error: () => {
+        this.leaveError.set('No se ha podido salir de la comunidad. Inténtalo de nuevo.');
+        this.leaving.set(false);
+      },
+    });
   }
 }

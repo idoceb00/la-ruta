@@ -34,5 +34,54 @@
       </div>
       <p class="mt-2 text-xs text-gray-500">Compártelo para que otros se unan a la comunidad.</p>
     </div>
-  }
+
+    <div class="mt-8 border-t border-gray-200 pt-4">
+    @if (!confirmingLeave()) {
+      <button
+        type="button"
+        (click)="confirmingLeave.set(true)"
+        class="text-sm font-medium text-red-600 hover:underline"
+      >
+        Salir de la comunidad
+      </button>
+    } @else {
+      <div class="rounded-lg border border-red-300 bg-red-50 p-4">
+        <p class="font-medium text-red-800">¿Seguro que quieres salir de {{ c.name }}?</p>
+
+        @if (c.memberCount === 1) {
+          <p class="mt-1 text-sm text-red-700">
+            Eres el último miembro: la comunidad se eliminará.
+          </p>
+        } @else if (c.role === 'ADMIN') {
+          <p class="mt-1 text-sm text-red-700">
+            Eres el administrador: otro miembro pasará a serlo.
+          </p>
+        }
+
+        <div class="mt-3 flex gap-2">
+          <button
+            type="button"
+            (click)="leave()"
+            [disabled]="leaving()"
+            class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+          >
+            {{ leaving() ? 'Saliendo…' : 'Sí, salir' }}
+          </button>
+          <button
+            type="button"
+            (click)="confirmingLeave.set(false)"
+            [disabled]="leaving()"
+            class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium disabled:opacity-50"
+          >
+            Cancelar
+          </button>
+        </div>
+
+        @if (leaveError(); as message) {
+          <p class="mt-2 text-sm text-red-700">{{ message }}</p>
+        }
+      </div>
+    }
+  </div>
+    }
 </section>
