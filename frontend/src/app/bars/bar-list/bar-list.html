@@ -1,9 +1,56 @@
-<p class="pb-3 text-sm text-stone-500">{{ barCount() }} bares guardados</p>
+@if (active.communities.isLoading() && !active.communities.hasValue()) {
+  <p class="text-stone-500">Cargando…</p>
+} @else if (active.communities.error()) {
+  <div class="rounded-xl border border-red-300 bg-red-50 p-4 text-red-700">
+    <p>No se han podido cargar tus comunidades.</p>
+    <button type="button" (click)="active.reload()" class="mt-2 text-sm font-medium underline">
+      Reintentar
+    </button>
+  </div>
+} @else if (active.activeCommunity(); as community) {
+  <div class="mb-4 flex items-center justify-between gap-3">
+    @if ((active.communities.value()?.length ?? 0) > 1) {
+      <select
+        (change)="selectCommunity($event)"
+        class="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-medium text-stone-700"
+      >
+        @for (c of active.communities.value(); track c.id) {
+          <option [value]="c.id" [selected]="c.id === community.id">{{ c.name }}</option>
+        }
+      </select>
+    } @else {
+      <p class="text-sm font-medium text-stone-700">{{ community.name }}</p>
+    }
 
-<section class="flex flex-col gap-3">
-  @for (bar of bars(); track bar.id) {
-    <app-bar-card [bar]="bar" />
-  } @empty {
-    <p class="text-stone-500">Todavía no tienes bares guardados.</p>
+    @if (bars.hasValue()) {
+      <p class="text-sm text-stone-500">{{ barCount() }} {{ barCount() === 1 ? 'bar' : 'bares' }}</p>
+    }
+  </div>
+
+  @if (bars.isLoading() && !bars.hasValue()) {
+    <p class="text-stone-500">Cargando bares…</p>
+  } @else if (bars.error()) {
+    <div class="rounded-xl border border-red-300 bg-red-50 p-4 text-red-700">
+      <p>No se han podido cargar los bares.</p>
+      <button type="button" (click)="bars.reload()" class="mt-2 text-sm font-medium underline">
+        Reintentar
+      </button>
+    </div>
+  } @else {
+    <section class="flex flex-col gap-3">
+      @for (bar of bars.value(); track bar.id) {
+        <app-bar-card [bar]="bar" />
+      } @empty {
+        <p class="text-stone-500">Todavía no hay bares en {{ community.name }}.</p>
+      }
+    </section>
   }
-</section>
+} @else {
+  <div class="rounded-xl bg-white p-6 text-center shadow-sm">
+    <p class="text-stone-700">Aún no estás en ninguna comunidad.</p>
+    <p class="mt-1 text-sm text-stone-500">Crea una o únete con un código para empezar a guardar bares.</p>
+    <a routerLink="/communities" class="mt-4 inline-block rounded-lg bg-amber-700 px-4 py-2 text-sm font-medium text-white">
+      Ir a comunidades
+    </a>
+  </div>
+}

@@ -1,19 +1,29 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
+import { ActiveCommunityService } from '../../communities/active-community-service';
 import { BarCard } from '../bar-card/bar-card';
-import { Bar } from '../bar.model';
+import { BarService } from '../bar-service';
 
 @Component({
   selector: 'app-bar-list',
-  imports: [BarCard],
+  imports: [BarCard, RouterLink],
   templateUrl: './bar-list.html',
-  styleUrl: './bar-list.css'
+  styleUrl: './bar-list.css',
 })
 export class BarList {
-  protected readonly bars = signal<Bar[]>([
-    { id: 1, name: 'El Rebote', city: 'León', zone: 'Barrio Húmedo', rating: 9 },
-    { id: 2, name: 'La Bicha', city: 'León', zone: 'Barrio Húmedo', rating: 8 },
-    { id: 3, name: 'Bar Prueba', city: 'León', zone: null, rating: null }
-  ]);
+  private readonly barService = inject(BarService);
+  protected readonly active = inject(ActiveCommunityService);
 
-  protected readonly barCount = computed(() => this.bars().length);
+  protected readonly bars = rxResource({
+    params: () => this.active.activeCommunity()?.id,
+    stream: ({ params: communityId }) => this.barService.getBars(communityId),
+  });
+
+  protected readonly barCount = computed(() => this.bars.value()?.length ?? 0);
+
+  protected selectCommunity(event: Event): void {
+    const id = Number((event.target as HTMLSelectElement).value);
+    this.active.select(id);
+  }
 }
