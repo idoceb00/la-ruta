@@ -1,68 +1,90 @@
 <section class="mx-auto max-w-2xl">
-  <a routerLink="/" class="text-sm text-stone-500 hover:underline">← Mis bares</a>
+  @if (isEdit()) {
+    <a [routerLink]="['/bars', id()]" class="text-sm text-stone-500 hover:underline">← Volver al bar</a>
 
-  @if (active.communities.isLoading() && !active.communities.hasValue()) {
-    <p class="mt-4 text-stone-500">Cargando…</p>
-  } @else if (active.activeCommunity(); as community) {
-    <h1 class="mt-4 text-2xl font-bold text-stone-800">Nuevo bar</h1>
-    <p class="text-sm text-stone-500">Se añadirá a {{ community.name }}</p>
-
-    <form [formGroup]="form" (ngSubmit)="submit()" class="mt-6 flex flex-col gap-4">
-      <label class="flex flex-col gap-1">
-        <span class="text-sm font-medium text-stone-700">Nombre *</span>
-        <input
-          formControlName="name"
-          type="text"
-          autocomplete="off"
-          class="rounded-lg border border-stone-300 px-3 py-2"
-        />
-        @if (form.controls.name.touched && form.controls.name.invalid) {
-          <span class="text-sm text-red-600">
-            @if (form.controls.name.hasError('maxlength')) {
-              Máximo 100 caracteres.
-            } @else {
-              El nombre es obligatorio.
-            }
-          </span>
-        }
-      </label>
-
-      <label class="flex flex-col gap-1">
-        <span class="text-sm font-medium text-stone-700">Ciudad</span>
-        <input formControlName="city" type="text" class="rounded-lg border border-stone-300 px-3 py-2" />
-      </label>
-
-      <label class="flex flex-col gap-1">
-        <span class="text-sm font-medium text-stone-700">Zona</span>
-        <input
-          formControlName="zone"
-          type="text"
-          placeholder="Barrio Húmedo, Romántico…"
-          class="rounded-lg border border-stone-300 px-3 py-2"
-        />
-      </label>
-
-      <label class="flex flex-col gap-1">
-        <span class="text-sm font-medium text-stone-700">Dirección</span>
-        <input formControlName="address" type="text" class="rounded-lg border border-stone-300 px-3 py-2" />
-      </label>
-
-      @if (saveError(); as message) {
-        <p class="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-700">{{ message }}</p>
-      }
-
-      <button
-        type="submit"
-        [disabled]="saving()"
-        class="rounded-lg bg-amber-700 px-4 py-2 font-medium text-white disabled:opacity-50"
-      >
-        {{ saving() ? 'Guardando…' : 'Guardar bar' }}
-      </button>
-    </form>
+    @if (bar.isLoading() && !bar.hasValue()) {
+      <p class="mt-4 text-stone-500">Cargando bar…</p>
+    } @else if (bar.error()) {
+      <div class="mt-4 rounded-lg border border-red-300 bg-red-50 p-3 text-red-700">
+        <p>No se ha encontrado el bar o no tienes acceso a él.</p>
+      </div>
+    } @else {
+      <h1 class="mt-4 text-2xl font-bold text-stone-800">Editar bar</h1>
+      <ng-container *ngTemplateOutlet="barForm" />
+    }
   } @else {
-    <p class="mt-4 text-stone-600">
-      Necesitas estar en una comunidad para guardar bares.
-      <a routerLink="/communities" class="font-medium text-amber-700 underline">Ir a comunidades</a>
-    </p>
+    <a routerLink="/" class="text-sm text-stone-500 hover:underline">← Mis bares</a>
+
+    @if (active.communities.isLoading() && !active.communities.hasValue()) {
+      <p class="mt-4 text-stone-500">Cargando…</p>
+    } @else if (active.activeCommunity(); as community) {
+      <h1 class="mt-4 text-2xl font-bold text-stone-800">Nuevo bar</h1>
+      <p class="text-sm text-stone-500">Se añadirá a {{ community.name }}</p>
+      <ng-container *ngTemplateOutlet="barForm" />
+    } @else {
+      <p class="mt-4 text-stone-600">
+        Necesitas estar en una comunidad para guardar bares.
+        <a routerLink="/communities" class="font-medium text-amber-700 underline">Ir a comunidades</a>
+      </p>
+    }
   }
 </section>
+
+<ng-template #barForm>
+  <form [formGroup]="form" (ngSubmit)="submit()" class="mt-6 flex flex-col gap-4">
+    <label class="flex flex-col gap-1">
+  <span class="text-sm font-medium text-stone-700">Nombre *</span>
+  <input
+    formControlName="name"
+    type="text"
+    autocomplete="off"
+    class="rounded-lg border border-stone-300 px-3 py-2"
+  />
+  @if (form.controls.name.touched && form.controls.name.invalid) {
+    <span class="text-sm text-red-600">
+      @if (form.controls.name.hasError('maxlength')) {
+        Máximo 100 caracteres.
+      } @else {
+        El nombre es obligatorio.
+      }
+    </span>
+  }
+</label>
+
+<label class="flex flex-col gap-1">
+  <span class="text-sm font-medium text-stone-700">Ciudad</span>
+  <input formControlName="city" type="text" class="rounded-lg border border-stone-300 px-3 py-2" />
+</label>
+
+<label class="flex flex-col gap-1">
+  <span class="text-sm font-medium text-stone-700">Zona</span>
+  <input
+    formControlName="zone"
+    type="text"
+    placeholder="Barrio Húmedo, Romántico…"
+    class="rounded-lg border border-stone-300 px-3 py-2"
+  />
+</label>
+
+<label class="flex flex-col gap-1">
+  <span class="text-sm font-medium text-stone-700">Dirección</span>
+  <input formControlName="address" type="text" class="rounded-lg border border-stone-300 px-3 py-2" />
+</label>
+
+    @if (saveError(); as message) {
+      <p class="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-700">{{ message }}</p>
+    }
+
+    <button
+      type="submit"
+      [disabled]="saving()"
+      class="rounded-lg bg-amber-700 px-4 py-2 font-medium text-white disabled:opacity-50"
+    >
+      @if (saving()) {
+        Guardando…
+      } @else {
+        {{ isEdit() ? 'Guardar cambios' : 'Guardar bar' }}
+      }
+    </button>
+  </form>
+</ng-template>

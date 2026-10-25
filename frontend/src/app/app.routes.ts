@@ -20,7 +20,8 @@ export const routes: Routes = [
             { path: 'communities', component: CommunityList },
             { path: 'communities/:id', component: CommunityDetail },
             { path: 'bars/new', component: BarForm },
-            { path: 'bars/:id', component: BarDetail }
+            { path: 'bars/:id', component: BarDetail },
+            { path: 'bars/:id/edit', component: BarForm}
         ]
     },
     { path: '**', redirectTo: ''}
