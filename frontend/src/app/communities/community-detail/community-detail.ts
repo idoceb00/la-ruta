@@ -3,10 +3,12 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { CommunityService } from '../community-service';
 import { ActiveCommunityService } from '../active-community-service';
+import { Loading } from '../../shared/loading/loading';
+import { ErrorBox } from '../../shared/error-box/error-box';
 
 @Component({
   selector: 'app-community-detail',
-  imports: [RouterLink],
+  imports: [RouterLink, Loading, ErrorBox],
   templateUrl: './community-detail.html',
   styleUrl: './community-detail.css',
 })

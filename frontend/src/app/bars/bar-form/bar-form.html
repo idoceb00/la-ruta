@@ -3,11 +3,9 @@
     <a [routerLink]="['/bars', id()]" class="text-sm text-stone-500 hover:underline">← Volver al bar</a>
 
     @if (bar.isLoading() && !bar.hasValue()) {
-      <p class="mt-4 text-stone-500">Cargando bar…</p>
+      <app-loading class="mt-4" message="Cargando..." />
     } @else if (bar.error()) {
-      <div class="mt-4 rounded-lg border border-red-300 bg-red-50 p-3 text-red-700">
-        <p>No se ha encontrado el bar o no tienes acceso a él.</p>
-      </div>
+      <app-error-box class="mt-4" message="No se ha encontrado el bar o no tienes acceso a el." />
     } @else {
       <h1 class="mt-4 text-2xl font-bold text-stone-800">Editar bar</h1>
       <ng-container *ngTemplateOutlet="formTemplate" />

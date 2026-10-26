@@ -6,10 +6,12 @@ import { ActiveCommunityService } from '../../communities/active-community-servi
 import { BarCard } from '../bar-card/bar-card';
 import { Bar } from '../bar.model';
 import { BarService } from '../bar-service';
+import { Loading } from '../../shared/loading/loading';
+import { ErrorBox } from '../../shared/error-box/error-box';
 
 @Component({
   selector: 'app-bar-list',
-  imports: [BarCard, RouterLink],
+  imports: [BarCard, RouterLink, Loading, ErrorBox],
   templateUrl: './bar-list.html',
   styleUrl: './bar-list.css',
 })

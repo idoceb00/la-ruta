@@ -2,11 +2,9 @@
   <a routerLink="/communities" class="text-sm text-gray-500 hover:underline">← Mis comunidades</a>
 
   @if (community.isLoading() && !community.hasValue()) {
-    <p class="mt-4 text-gray-500">Cargando comunidad…</p>
+    <app-loading class="mt-4" message="Cargando comunidades..." />
   } @else if (community.error()) {
-    <div class="mt-4 rounded-lg border border-red-300 bg-red-50 p-3 text-red-700">
-      <p>No se ha encontrado la comunidad o no perteneces a ella.</p>
-    </div>
+    <app-error-box class="mt-4" message="No se han podido cargar las comunidades" />
   } @else if (community.value(); as c) {
     <header class="mt-4 flex items-start justify-between gap-4">
       <div>

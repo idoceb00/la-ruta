@@ -4,10 +4,12 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { BarService } from '../bar-service';
 import { BarLocationPipe } from '../bar-location-pipe';
+import { Loading } from '../../shared/loading/loading';
+import { ErrorBox } from '../../shared/error-box/error-box';
 
 @Component({
   selector: 'app-bar-detail',
-  imports: [DecimalPipe, RouterLink, BarLocationPipe],
+  imports: [DecimalPipe, RouterLink, BarLocationPipe, Loading, ErrorBox],
   templateUrl: './bar-detail.html',
   styleUrl: './bar-detail.css',
 })

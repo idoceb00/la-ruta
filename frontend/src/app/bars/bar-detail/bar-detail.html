@@ -2,11 +2,9 @@
   <a routerLink="/" class="text-sm text-stone-500 hover:underline">← Mis bares</a>
 
   @if (bar.isLoading() && !bar.hasValue()) {
-    <p class="mt-4 text-stone-500">Cargando bar…</p>
+    <app-loading class="mt-4" message="Cargando bar..."/>
   } @else if (bar.error()) {
-    <div class="mt-4 rounded-lg border border-red-300 bg-red-50 p-3 text-red-700">
-      <p>No se ha encontrado el bar o no tienes acceso a él.</p>
-    </div>
+    <app-error-box class="mt-4" message="No se ha encontrado el bar." />
   } @else if (bar.value(); as b) {
     <header class="mt-4 flex items-start justify-between gap-4">
       <div>

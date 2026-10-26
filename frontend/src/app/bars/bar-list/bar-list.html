@@ -1,12 +1,7 @@
 @if (active.communities.isLoading() && !active.communities.hasValue()) {
-  <p class="text-stone-500">Cargando…</p>
+  <app-loading />
 } @else if (active.communities.error()) {
-  <div class="rounded-xl border border-red-300 bg-red-50 p-4 text-red-700">
-    <p>No se han podido cargar tus comunidades.</p>
-    <button type="button" (click)="active.reload()" class="mt-2 text-sm font-medium underline">
-      Reintentar
-    </button>
-  </div>
+  <app-error-box message="No se han podido cargar tus comunidades." retryable (retry)="active.reload()" />
 } @else if (active.activeCommunity(); as community) {
   <div class="mb-4 flex items-center justify-between gap-3">
     @if ((active.communities.value()?.length ?? 0) > 1) {
@@ -63,12 +58,7 @@
   </div>
 
   @if (bars.error()) {
-    <div class="rounded-xl border border-red-300 bg-red-50 p-4 text-red-700">
-      <p>No se han podido cargar los bares.</p>
-      <button type="button" (click)="bars.reload()" class="mt-2 text-sm font-medium underline">
-        Reintentar
-      </button>
-    </div>
+    <app-error-box message="No se han podido cargar los bares." retryable (retry)="bars.reload()" />
   } @else if (shownBars(); as list) {
     <section class="flex flex-col gap-3 transition-opacity" [class.opacity-60]="bars.isLoading()">
       @for (bar of list; track bar.id) {
@@ -82,7 +72,7 @@
       }
     </section>
   } @else {
-    <p class="text-stone-500">Cargando bares…</p>
+    <app-loading message="Cargando bares..."/>
   }
 } @else {
   <div class="rounded-xl bg-white p-6 text-center shadow-sm">

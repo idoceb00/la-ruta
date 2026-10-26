@@ -4,9 +4,11 @@ import { CommunityJoinForm } from '../community-join-form/community-join-form';
 import { RouterLink } from '@angular/router';
 import { ActiveCommunityService } from '../active-community-service';
 import { Community } from '../community.model';
+import { Loading } from '../../shared/loading/loading';
+import { ErrorBox } from '../../shared/error-box/error-box';
 
 @Component({
-  imports: [CommunityCreateForm, CommunityJoinForm, RouterLink],
+  imports: [CommunityCreateForm, CommunityJoinForm, RouterLink, Loading, ErrorBox],
   selector: 'app-community-list',
   styleUrl: './community-list.css',
   templateUrl: './community-list.html',

@@ -7,6 +7,8 @@ import { Observable } from 'rxjs';
 import { ActiveCommunityService } from '../../communities/active-community-service';
 import { Bar, BarRequest } from '../bar.model';
 import { BarService } from '../bar-service';
+import { Loading } from '../../shared/loading/loading';
+import { ErrorBox } from '../../shared/error-box/error-box';
 
 interface BarFormModel {
   name: string;
@@ -17,7 +19,7 @@ interface BarFormModel {
 
 @Component({
   selector: 'app-bar-form',
-  imports: [FormField, RouterLink, NgTemplateOutlet],
+  imports: [FormField, RouterLink, NgTemplateOutlet, Loading, ErrorBox],
   templateUrl: './bar-form.html',
   styleUrl: './bar-form.css',
 })
