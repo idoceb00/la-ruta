@@ -1,18 +1,13 @@
 <section class="mx-auto max-w-2xl p-4">
   <h1 class="mb-4 text-2xl font-bold">Mis comunidades</h1>
     <div class="mb-6 grid gap-4 sm:grid-cols-2">
-        <app-community-create-form (created)="communities.reload()" />
-        <app-community-join-form (joined)="communities.reload()" />
+        <app-community-create-form (created)="onCommunityAdded($event)" />
+        <app-community-join-form (joined)="onCommunityAdded($event)" />
     </div>
   @if (communities.isLoading() && !communities.hasValue()) {
-    <p class="text-gray-500">Cargando comunidades…</p>
+    <app-loading message="Cargando comunidades..." />
   } @else if (communities.error()) {
-    <div class="rounded-lg border border-red-300 bg-red-50 p-3 text-red-700">
-      <p>No se han podido cargar tus comunidades.</p>
-      <button type="button" class="mt-2 font-medium underline" (click)="communities.reload()">
-        Reintentar
-      </button>
-    </div>
+    <app-error-box message="No se han podido cargar las comuniddes" />
   } @else {
     @let list = communities.value() ?? [];
 

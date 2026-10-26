@@ -6,6 +6,8 @@ import { authGuard } from './auth/auth-guard'
 import { guestGuard } from './auth/guest-guard';
 import { CommunityList } from './communities/community-list/community-list';
 import { CommunityDetail } from './communities/community-detail/community-detail';
+import { BarForm } from './bars/bar-form/bar-form';
+import { BarDetail } from './bars/bar-detail/bar-detail';
 
 export const routes: Routes = [
     { path: 'login', component: Login, canActivate: [guestGuard]},
@@ -14,10 +16,12 @@ export const routes: Routes = [
         path: '',
         canActivate: [authGuard],
         children: [
-            { path: 'communities', component: CommunityList, canActivate: [authGuard] },
-            { path: '', redirectTo: 'communities', pathMatch: 'full' },
-            { path: 'communities/:id', component: CommunityDetail, canActivate: [authGuard] },
-            { path: '', component: BarList }
+            { path: '', component: BarList, pathMatch: 'full' },
+            { path: 'communities', component: CommunityList },
+            { path: 'communities/:id', component: CommunityDetail },
+            { path: 'bars/new', component: BarForm },
+            { path: 'bars/:id', component: BarDetail },
+            { path: 'bars/:id/edit', component: BarForm}
         ]
     },
     { path: '**', redirectTo: ''}

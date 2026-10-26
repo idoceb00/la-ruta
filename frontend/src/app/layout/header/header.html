@@ -3,6 +3,7 @@
   <nav class="flex gap-4 text-stone-600">
     @if (authService.isAuthenticated()) {
       <a routerLink="/" class="hover:text-amber-700">Mis bares</a>
+      <a routerLink="/communities" class="hover:text-amber-700">Comunidades</a>
       <button type="button" (click)="logout()" class="hover:text-amber-700">Salir</button>
     } @else {
       <a routerLink="/login" class="hover:text-amber-700">Entrar</a>

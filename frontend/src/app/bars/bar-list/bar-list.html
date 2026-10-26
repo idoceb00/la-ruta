@@ -1,9 +1,88 @@
-<p class="pb-3 text-sm text-stone-500">{{ barCount() }} bares guardados</p>
+@if (active.communities.isLoading() && !active.communities.hasValue()) {
+  <app-loading />
+} @else if (active.communities.error()) {
+  <app-error-box message="No se han podido cargar tus comunidades." retryable (retry)="active.reload()" />
+} @else if (active.activeCommunity(); as community) {
+  <div class="mb-4 flex items-center justify-between gap-3">
+    @if ((active.communities.value()?.length ?? 0) > 1) {
+      <select
+        (change)="selectCommunity($event)"
+        class="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-medium text-stone-700"
+      >
+        @for (c of active.communities.value(); track c.id) {
+          <option [value]="c.id" [selected]="c.id === community.id">{{ c.name }}</option>
+        }
+      </select>
+    } @else {
+      <p class="text-sm font-medium text-stone-700">{{ community.name }}</p>
+    }
 
-<section class="flex flex-col gap-3">
-  @for (bar of bars(); track bar.id) {
-    <app-bar-card [bar]="bar" />
-  } @empty {
-    <p class="text-stone-500">Todavía no tienes bares guardados.</p>
+    <div class="flex items-center gap-3">
+      @if (shownBars()) {
+        <p class="text-sm text-stone-500">
+          {{ barCount() }}
+          @if (searching()) {
+            {{ barCount() === 1 ? 'resultado' : 'resultados' }}
+          } @else {
+            {{ barCount() === 1 ? 'bar' : 'bares' }}
+          }
+        </p>
+      }
+      <a routerLink="/bars/new" class="rounded-lg bg-amber-700 px-3 py-2 text-sm font-medium text-white">
+        + Añadir
+      </a>
+    </div>
+  </div>
+
+  <div class="relative mb-4">
+    <input
+      type="search"
+      [value]="query()"
+      (input)="onSearch($event)"
+      (keydown.escape)="clearSearch()"
+      placeholder="Buscar por nombre, ciudad o zona"
+      enterkeyhint="search"
+      autocomplete="off"
+      class="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 pr-10 [&::-webkit-search-cancel-button]:appearance-none"
+    />
+    @if (query()) {
+      <button
+        type="button"
+        (click)="clearSearch()"
+        aria-label="Borrar búsqueda"
+        class="absolute top-1/2 right-3 -translate-y-1/2 px-1 text-stone-400 hover:text-stone-600"
+      >
+        ✕
+      </button>
+    }
+  </div>
+
+  @if (bars.error()) {
+    <app-error-box message="No se han podido cargar los bares." retryable (retry)="bars.reload()" />
+  } @else if (shownBars(); as list) {
+    <section class="flex flex-col gap-3 transition-opacity" [class.opacity-60]="bars.isLoading()">
+      @for (bar of list; track bar.id) {
+        <app-bar-card [bar]="bar" />
+      } @empty {
+        @if (searching()) {
+          <p class="text-stone-500">No hay bares que coincidan con «{{ query().trim() }}».</p>
+        } @else {
+          <p class="text-stone-500">Todavía no hay bares en {{ community.name }}.</p>
+        }
+      }
+    </section>
+  } @else {
+    <app-loading message="Cargando bares..."/>
   }
-</section>
+} @else {
+  <div class="rounded-xl bg-white p-6 text-center shadow-sm">
+    <p class="text-stone-700">Aún no estás en ninguna comunidad.</p>
+    <p class="mt-1 text-sm text-stone-500">Crea una o únete con un código para empezar a guardar bares.</p>
+    <a
+      routerLink="/communities"
+      class="mt-4 inline-block rounded-lg bg-amber-700 px-4 py-2 text-sm font-medium text-white"
+    >
+      Ir a comunidades
+    </a>
+  </div>
+}
