@@ -7,43 +7,60 @@
     <ul class="mt-2 divide-y divide-stone-200 rounded-lg border border-stone-200">
       @for (tapa of tapas(); track tapa.tapaId) {
         <li>
-          <button
-            type="button"
-            (click)="toggle(tapa.tapaId)"
-            [attr.aria-expanded]="expandedTapaId() === tapa.tapaId"
-            class="flex w-full items-start justify-between gap-4 p-3 text-left hover:bg-stone-50"
-          >
-            <span class="block min-w-0">
-              <span class="block font-medium text-stone-800">
-                {{ tapa.tapaName }}
-                @if (tapa.myReview?.fav) {
-                  <span class="text-amber-500" title="Favorita" aria-label="Favorita">★</span>
+          <div class="flex items-start">
+            <button
+              type="button"
+              (click)="toggle(tapa.tapaId)"
+              [attr.aria-expanded]="expandedTapaId() === tapa.tapaId"
+              class="flex min-w-0 flex-1 items-start justify-between gap-4 p-3 text-left hover:bg-stone-50"
+            >
+              <span class="block min-w-0">
+                <span class="block font-medium text-stone-800">{{ tapa.tapaName }}</span>
+
+                @if (tapa.myReview; as review) {
+                  @if (review.rating !== null) {
+                    <span class="mt-1 block text-sm text-stone-500">Mi nota: {{ review.rating }}/5</span>
+                  }
+                  @if (review.notes) {
+                    <span class="mt-1 line-clamp-2 block text-sm text-stone-600">{{ review.notes }}</span>
+                  }
                 }
               </span>
 
-              @if (tapa.myReview; as review) {
-                @if (review.rating !== null) {
-                  <span class="mt-1 block text-sm text-stone-500">Mi nota: {{ review.rating }}/5</span>
-                }
-                @if (review.notes) {
-                  <span class="mt-1 line-clamp-2 block text-sm text-stone-600">{{ review.notes }}</span>
-                }
+              @if (tapa.averageRating !== null) {
+                <span class="block shrink-0 text-right">
+                  <span class="rounded-full bg-amber-100 px-2 py-0.5 text-sm font-semibold text-amber-800">
+                    {{ tapa.averageRating | number: '1.0-1' }}/5
+                  </span>
+                  <span class="mt-1 block text-xs text-stone-500">
+                    {{ tapa.ratingCount }} {{ tapa.ratingCount === 1 ? 'valoración' : 'valoraciones' }}
+                  </span>
+                </span>
+              } @else {
+                <span class="shrink-0 text-sm text-stone-400">Sin valoraciones</span>
               }
-            </span>
+            </button>
 
-            @if (tapa.averageRating !== null) {
-              <span class="block shrink-0 text-right">
-                <span class="rounded-full bg-amber-100 px-2 py-0.5 text-sm font-semibold text-amber-800">
-                  {{ tapa.averageRating | number: '1.0-1' }}/5
-                </span>
-                <span class="mt-1 block text-xs text-stone-500">
-                  {{ tapa.ratingCount }} {{ tapa.ratingCount === 1 ? 'valoración' : 'valoraciones' }}
-                </span>
-              </span>
-            } @else {
-              <span class="shrink-0 text-sm text-stone-400">Sin valoraciones</span>
-            }
-          </button>
+            <button
+              type="button"
+              (click)="toggleFav(tapa)"
+              [disabled]="pendingFav() !== null || expandedTapaId() === tapa.tapaId"
+              [attr.aria-pressed]="isFav(tapa)"
+              [attr.aria-label]="isFav(tapa) ? 'Quitar de favoritas' : 'Marcar como favorita'"
+              [class.text-amber-500]="isFav(tapa)"
+              [class.text-stone-300]="!isFav(tapa)"
+              [class.animate-pulse]="pendingFav()?.tapaId === tapa.tapaId"
+              class="shrink-0 px-3 py-3 text-2xl leading-none disabled:cursor-not-allowed"
+            >
+              {{ isFav(tapa) ? '★' : '☆' }}
+            </button>
+          </div>
+
+          @if (favErrorTapaId() === tapa.tapaId) {
+            <p class="px-3 pb-2 text-sm text-red-700">
+              No se ha podido actualizar la favorita. Inténtalo de nuevo.
+            </p>
+          }
 
           @if (expandedTapaId() === tapa.tapaId) {
             <div class="border-t border-stone-100 bg-stone-50 p-3">
@@ -54,7 +71,8 @@
                 (saved)="changed.emit()"
                 (cancelled)="expandedTapaId.set(null)"
               />
-              <app-bar-tapa-remove 
+
+              <app-bar-tapa-remove
                 [barId]="barId()"
                 [tapaId]="tapa.tapaId"
                 [tapaName]="tapa.tapaName"
