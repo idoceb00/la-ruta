@@ -57,6 +57,9 @@
     }
   </div>
 
+  <a routerLink="/tapas" class="-mt-2 mb-4 inline-block text-sm font-medium text-amber-700 hover:underline">
+    ¿Buscas una tapa concreta? Buscar por tapa →
+  </a>
   @if (bars.error()) {
     <app-error-box message="No se han podido cargar los bares." retryable (retry)="bars.reload()" />
   } @else if (shownBars(); as list) {

@@ -18,6 +18,12 @@ export class TapaService {
     return this.http.get<Tapa[]>(`${this.apiUrl}/tapas`, { params });
   }
 
+  getBarsWithTapa(communityId: number, tapaId: number): Observable<BarTapa[]> {
+    return this.http.get<BarTapa[]>(
+      `${this.apiUrl}/communities/${communityId}/tapas/${tapaId}/bars`,
+    );
+  }
+  
   addTapaToBar(barId: number, request: BarTapaRequest): Observable<BarTapa> {
     return this.http.post<BarTapa>(`${this.apiUrl}/bars/${barId}/tapas`, request);
   }
