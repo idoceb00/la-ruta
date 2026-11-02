@@ -32,6 +32,7 @@
     </header>
     
     <app-bar-review-form [barId]="b.id" [review]="b.myReview" (saved)="bar.reload()" />   
+    <app-bar-tapa-list [tapas]="b.tapas" />
 
     <a [routerLink]="['/bars', b.id, 'edit']" class="mt-6 inline-block rounded-lg border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700">
         Editar

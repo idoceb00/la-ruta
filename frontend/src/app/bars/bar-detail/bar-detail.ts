@@ -7,10 +7,11 @@ import { BarLocationPipe } from '../bar-location-pipe';
 import { Loading } from '../../shared/loading/loading';
 import { ErrorBox } from '../../shared/error-box/error-box';
 import { BarReviewForm } from '../bar-review-form/bar-review-form';
+import { BarTapaList } from '../bar-tapa-list/bar-tapa-list';
 
 @Component({
   selector: 'app-bar-detail',
-  imports: [DecimalPipe, RouterLink, BarLocationPipe, Loading, ErrorBox, BarReviewForm],
+  imports: [DecimalPipe, RouterLink, BarLocationPipe, Loading, ErrorBox, BarReviewForm, BarTapaList],
   templateUrl: './bar-detail.html',
   styleUrl: './bar-detail.css',
 })
