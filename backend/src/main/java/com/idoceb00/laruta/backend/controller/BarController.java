@@ -1,5 +1,6 @@
 package com.idoceb00.laruta.backend.controller;
 
+import com.idoceb00.laruta.backend.dto.BarDetailResponse;
 import com.idoceb00.laruta.backend.dto.BarRequest;
 import com.idoceb00.laruta.backend.dto.BarResponse;
 import com.idoceb00.laruta.backend.service.BarService;
@@ -29,7 +30,7 @@ public class BarController {
     }
 
     @GetMapping("/api/bars/{id}")
-    public BarResponse getBarById(@PathVariable Long id) {
+    public BarDetailResponse getBarById(@PathVariable Long id) {
         return barService.findById(id);
     }
 
