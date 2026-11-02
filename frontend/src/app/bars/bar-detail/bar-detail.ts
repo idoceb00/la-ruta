@@ -6,10 +6,11 @@ import { BarService } from '../bar-service';
 import { BarLocationPipe } from '../bar-location-pipe';
 import { Loading } from '../../shared/loading/loading';
 import { ErrorBox } from '../../shared/error-box/error-box';
+import { BarReviewForm } from '../bar-review-form/bar-review-form';
 
 @Component({
   selector: 'app-bar-detail',
-  imports: [DecimalPipe, RouterLink, BarLocationPipe, Loading, ErrorBox],
+  imports: [DecimalPipe, RouterLink, BarLocationPipe, Loading, ErrorBox, BarReviewForm],
   templateUrl: './bar-detail.html',
   styleUrl: './bar-detail.css',
 })

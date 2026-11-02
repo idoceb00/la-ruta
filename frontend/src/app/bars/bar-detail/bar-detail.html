@@ -31,25 +31,7 @@
       }
     </header>
     
-      <section class="mt-6 rounded-lg border border-stone-200 p-4">
-      <h2 class="text-sm font-semibold uppercase tracking-wide text-stone-500">Mi valoración</h2>
-
-      @if (b.myReview; as review) {
-        @if (review.rating !== null) {
-          <p class="mt-2 text-2xl font-bold text-amber-700">
-            {{ review.rating }}<span class="text-base font-normal text-stone-400">/10</span>
-          </p>
-        } @else {
-          <p class="mt-2 text-sm text-stone-400">Sin nota</p>
-        }
-
-        @if (review.notes) {
-          <p class="mt-2 whitespace-pre-line text-stone-700">{{ review.notes }}</p>
-        }
-      } @else {
-        <p class="mt-2 text-sm text-stone-400">Aún no lo has valorado.</p>
-      }
-    </section>
+    <app-bar-review-form [review]="b.myReview" />   
 
     <a [routerLink]="['/bars', b.id, 'edit']" class="mt-6 inline-block rounded-lg border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700">
         Editar
