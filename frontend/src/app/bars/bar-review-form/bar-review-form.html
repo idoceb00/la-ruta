@@ -47,22 +47,29 @@
         }
       </div>
 
+      <p class="text-xs text-stone-500">Si vacías la nota y las notas, se borrará tu valoración.</p>
+
       <div class="flex gap-2">
         <button
           type="submit"
-          [disabled]="reviewForm().invalid()"
+          [disabled]="reviewForm().invalid() || saving()"
           class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
         >
-          Guardar
+          {{ saving() ? 'Guardando…' : 'Guardar' }}
         </button>
         <button
           type="button"
           (click)="cancel()"
-          class="rounded-lg border border-stone-300 px-4 py-2 text-sm font-medium"
+          [disabled]="saving()"
+          class="rounded-lg border border-stone-300 px-4 py-2 text-sm font-medium disabled:opacity-50"
         >
           Cancelar
         </button>
       </div>
+
+      @if (saveError(); as message) {
+        <p class="text-sm text-red-700">{{ message }}</p>
+      }
     </form>
   } @else {
     @if (review(); as r) {
