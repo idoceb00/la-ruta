@@ -11,4 +11,6 @@ public interface TapaReviewRepository extends JpaRepository<TapaReview, Long> {
 
     // One query to collect all of a user's tapa reviews in a community when leaving it
     List<TapaReview> findByUserIdAndBarTapaBarCommunityId(Long userId, Long communityId);
+    // The current user's tapa reviews for every tapa of a bar, in one query
+    List<TapaReview> findByUserIdAndBarTapaBarId(Long userId, Long barId);
 }
