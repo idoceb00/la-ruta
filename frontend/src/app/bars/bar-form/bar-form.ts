@@ -9,6 +9,7 @@ import { Bar, BarRequest } from '../bar.model';
 import { BarService } from '../bar-service';
 import { Loading } from '../../shared/loading/loading';
 import { ErrorBox } from '../../shared/error-box/error-box';
+import { toNullable } from '../../shared/to-nullable';
 
 interface BarFormModel {
   name: string;
@@ -105,9 +106,4 @@ function toFormModel(bar: Bar | undefined): BarFormModel {
     address: bar?.address ?? '',
     zone: bar?.zone ?? '',
   };
-}
-
-function toNullable(value: string): string | null {
-  const trimmed = value.trim();
-  return trimmed ? trimmed : null;
 }

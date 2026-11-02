@@ -3,6 +3,7 @@ import { form, FormField, maxLength, pattern } from '@angular/forms/signals';
 import { Observable } from 'rxjs';
 import { BarService } from '../bar-service';
 import { MyBarReview } from '../bar.model';
+import { toNullable } from '../../shared/to-nullable';
 
 interface BarReviewFormModel {
   rating: string;
@@ -95,9 +96,4 @@ function toFormModel(review: MyBarReview | null): BarReviewFormModel {
     rating: review?.rating?.toString() ?? '',
     notes: review?.notes ?? '',
   };
-}
-
-function toNullable(value: string): string | null {
-  const trimmed = value.trim();
-  return trimmed ? trimmed : null;
 }
