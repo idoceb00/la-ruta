@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Bar, BarRequest } from './bar.model';
+import { Bar, BarDetailResponse, BarRequest, BarReviewRequest } from './bar.model';
 
 @Service()
 export class BarService {
@@ -18,8 +18,8 @@ export class BarService {
     return this.http.get<Bar[]>(`${this.apiUrl}/communities/${communityId}/bars`, { params });
   }
 
-  getBar(id: number): Observable<Bar> {
-    return this.http.get<Bar>(`${this.apiUrl}/bars/${id}`);
+  getBar(id: number): Observable<BarDetailResponse> {
+    return this.http.get<BarDetailResponse>(`${this.apiUrl}/bars/${id}`);
   }
 
   createBar(communityId: number, request: BarRequest): Observable<Bar> {
@@ -32,5 +32,13 @@ export class BarService {
 
   deleteBar(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/bars/${id}`);
+  }
+
+  saveMyReview(barId: number, request: BarReviewRequest): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/bars/${barId}/review`, request);
+  }
+
+  deleteMyReview(barId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/bars/${barId}/review`);
   }
 }
