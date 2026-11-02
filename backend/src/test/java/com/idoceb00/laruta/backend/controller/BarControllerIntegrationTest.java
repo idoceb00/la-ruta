@@ -10,6 +10,12 @@ import com.idoceb00.laruta.backend.repository.BarRepository;
 import com.idoceb00.laruta.backend.repository.CommunityRepository;
 import com.idoceb00.laruta.backend.repository.MembershipRepository;
 import com.idoceb00.laruta.backend.repository.UserRepository;
+import com.idoceb00.laruta.backend.model.BarTapa;
+import com.idoceb00.laruta.backend.model.Tapa;
+import com.idoceb00.laruta.backend.model.TapaReview;
+import com.idoceb00.laruta.backend.repository.BarTapaRepository;
+import com.idoceb00.laruta.backend.repository.TapaRepository;
+import com.idoceb00.laruta.backend.repository.TapaReviewRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +55,15 @@ class BarControllerIntegrationTest {
 
     @Autowired
     private MembershipRepository membershipRepository;
+
+    @Autowired
+    private TapaRepository tapaRepository;
+
+    @Autowired
+    private BarTapaRepository barTapaRepository;
+
+    @Autowired
+    private TapaReviewRepository tapaReviewRepository;
 
     private Bar bar;
     private User user;
@@ -95,6 +110,50 @@ class BarControllerIntegrationTest {
                 .andExpect(jsonPath("$[?(@.id == %d)].ratingCount", otherBar.getId()).value(contains(0)));
     }
 
+    @Test
+    void getBar_whenNoReviewNorTapas_returnsNullReviewAndEmptyTapas() throws Exception {
+        getBar(bar.getId())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.myReview").value(nullValue()))
+                .andExpect(jsonPath("$.tapas").isEmpty());
+    }
+
+    @Test
+    void getBar_whenUserReviewed_includesOwnReview() throws Exception {
+        review(bar.getId(), user.getId(), 8, "Buenas bravas");
+
+        getBar(bar.getId())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.myReview.rating").value(8))
+                .andExpect(jsonPath("$.myReview.notes").value("Buenas bravas"));
+    }
+
+    @Test
+    void getBar_whenOnlyOtherMemberReviewed_doesNotExposeTheirReview() throws Exception {
+        rate(bar.getId(), createUser("Alberto").getId(), 9);
+
+        getBar(bar.getId())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.myReview").value(nullValue()))
+                .andExpect(jsonPath("$.ratingCount").value(1));
+    }
+
+    @Test
+    void getBar_withTapas_returnsThemSortedWithOwnTapaReview() throws Exception {
+        BarTapa tortilla = addTapa(bar, "Tortilla de prueba");
+        addTapa(bar, "Bravas de prueba");
+        tapaReviewRepository.save(new TapaReview(tortilla, user, null, 4, true));
+
+        getBar(bar.getId())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.tapas.length()").value(2))
+                .andExpect(jsonPath("$.tapas[0].tapaName").value("Bravas de prueba"))
+                .andExpect(jsonPath("$.tapas[0].myReview").value(nullValue()))
+                .andExpect(jsonPath("$.tapas[1].tapaName").value("Tortilla de prueba"))
+                .andExpect(jsonPath("$.tapas[1].myReview.rating").value(4))
+                .andExpect(jsonPath("$.tapas[1].myReview.fav").value(true));
+    }
+
     private ResultActions getBar(Long barId) throws Exception {
         return mockMvc.perform(get("/api/bars/{id}", barId)
                 .with(authenticatedAs(user.getId())));
@@ -132,5 +191,21 @@ class BarControllerIntegrationTest {
                 "Calle Jesús Rubio",
                 "Colegio San Claudio")
         );
+    }
+
+    private void review(Long barId, Long userId, Integer rating, String notes) throws Exception {
+        String body = """
+            { "rating": %d, "notes": "%s" }
+            """.formatted(rating, notes);
+        mockMvc.perform(put("/api/bars/{barId}/review", barId)
+                        .with(authenticatedAs(userId))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isOk());
+    }
+
+    private BarTapa addTapa(Bar owner, String tapaName) {
+        Tapa tapa = tapaRepository.save(new Tapa(tapaName));
+        return barTapaRepository.save(new BarTapa(owner, tapa));
     }
 }

@@ -10,7 +10,6 @@ import java.util.Optional;
 
 public interface BarTapaRepository extends JpaRepository<BarTapa, Long> {
     List<BarTapa> findByBarId(Long barId);
-    List<BarTapa> findByTapaId(Long tapaId);
     Optional<BarTapa> findByBarIdAndTapaId(Long barId, Long tapaId);
     boolean existsByBarIdAndTapaId(Long barId, Long tapaId);
     // Bars of a community serving a tapa, best rated first. Unrated ones go last; with the same average, more ratings first.
@@ -25,4 +24,12 @@ public interface BarTapaRepository extends JpaRepository<BarTapa, Long> {
         """)
     List<BarTapa> findByTapaIdAndCommunityIdOrderByAverageRatingDesc(@Param("tapaId") Long tapaId,
                                                                      @Param("communityId") Long communityId);
+    // Tapas of a bar with their catalog entry loaded, alphabetical
+    @Query("""
+    SELECT bt FROM BarTapa bt
+    JOIN FETCH bt.tapa
+    WHERE bt.bar.id = :barId
+    ORDER BY bt.tapa.name
+    """)
+    List<BarTapa> findByBarIdWithTapa(@Param("barId") Long barId);
 }

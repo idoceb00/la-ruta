@@ -1,18 +1,24 @@
 package com.idoceb00.laruta.backend.service;
 
+import com.idoceb00.laruta.backend.dto.BarDetailResponse;
 import com.idoceb00.laruta.backend.dto.BarResponse;
 import com.idoceb00.laruta.backend.dto.BarRequest;
 import com.idoceb00.laruta.backend.exception.BarNotFoundException;
 import com.idoceb00.laruta.backend.exception.CommunityNotFoundException;
 import com.idoceb00.laruta.backend.model.Bar;
+import com.idoceb00.laruta.backend.model.BarReview;
 import com.idoceb00.laruta.backend.model.Community;
-import com.idoceb00.laruta.backend.repository.BarRepository;
-import com.idoceb00.laruta.backend.repository.CommunityRepository;
+import com.idoceb00.laruta.backend.model.TapaReview;
+import com.idoceb00.laruta.backend.repository.*;
+import com.idoceb00.laruta.backend.security.CurrentUserProvider;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +27,10 @@ public class BarService {
     private final BarRepository barRepository;
     private final CommunityRepository communityRepository;
     private final MembershipService membershipService;
+    private final BarReviewRepository barReviewRepository;
+    private final BarTapaRepository barTapaRepository;
+    private final TapaReviewRepository tapaReviewRepository;
+    private final CurrentUserProvider currentUserProvider;
 
     @Transactional
     public BarResponse createBar(Long communityId, BarRequest request) {
@@ -51,11 +61,24 @@ public class BarService {
     }
 
     @Transactional(readOnly = true)
-    public BarResponse findById(Long id) {
+    public BarDetailResponse findById(Long id) {
         Bar bar = findBarOrThrow(id);
         membershipService.requireMembership(bar.getCommunity().getId());
+        Long userId = currentUserProvider.getCurrentUserId();
 
-        return BarResponse.from(bar);
+        BarReview myReview = barReviewRepository.findByBarIdAndUserId(id, userId).orElse(null);
+
+        // Indexed by bar_tapa id so each tapa finds its review without extra queries
+        Map<Long, TapaReview> myTapaReviews = tapaReviewRepository.findByUserIdAndBarTapaBarId(userId, id)
+                .stream()
+                .collect(Collectors.toMap(review -> review.getBarTapa().getId(), Function.identity()));
+
+        List<BarDetailResponse.TapaDetail> tapas = barTapaRepository.findByBarIdWithTapa(id)
+                .stream()
+                .map(barTapa -> BarDetailResponse.TapaDetail.from(barTapa, myTapaReviews.get(barTapa.getId())))
+                .toList();
+
+        return BarDetailResponse.from(bar, myReview, tapas);
     }
 
     @Transactional
