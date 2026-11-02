@@ -54,6 +54,12 @@
                 (saved)="changed.emit()"
                 (cancelled)="expandedTapaId.set(null)"
               />
+              <app-bar-tapa-remove 
+                [barId]="barId()"
+                [tapaId]="tapa.tapaId"
+                [tapaName]="tapa.tapaName"
+                (removed)="changed.emit()"
+              />
             </div>
           }
         </li>
