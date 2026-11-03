@@ -20,8 +20,8 @@
         <button type="button" (click)="logout()" class="cursor-pointer uppercase hover:text-wine">
           Salir
         </button>
-      } @else {
-        <a routerLink="/login" routerLinkActive="text-wine" class="hover:text-wine">Entrar</a>
+      } @else if(!onAuthPage()){
+        <a routerLink="/login" class="hover:text-wine">Entrar</a>
       }
     </nav>
   </div>
