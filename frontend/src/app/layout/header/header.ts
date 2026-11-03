@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../auth/auth-service';
 
 @Component({
   selector: 'app-header',
-  imports: [RouterLink],
+  imports: [RouterLink, RouterLinkActive],
   templateUrl: './header.html',
-  styleUrl: './header.css'
+  styleUrl: './header.css',
 })
 export class Header {
   protected readonly authService = inject(AuthService);
@@ -14,6 +14,6 @@ export class Header {
 
   protected logout(): void {
     this.authService.logout();
-    this.router.navigate(['/login']);
+    void this.router.navigate(['/login']);
   }
 }
