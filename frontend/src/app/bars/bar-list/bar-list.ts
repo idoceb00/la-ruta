@@ -9,10 +9,11 @@ import { BarService } from '../bar-service';
 import { Loading } from '../../shared/loading/loading';
 import { ErrorBox } from '../../shared/error-box/error-box';
 import { Button } from '../../shared/button/button';
+import { SearchBox } from '../../shared/search-box/search-box';
 
 @Component({
   selector: 'app-bar-list',
-  imports: [BarCard, RouterLink, Loading, ErrorBox, Button],
+  imports: [BarCard, RouterLink, Loading, ErrorBox, Button, SearchBox],
   templateUrl: './bar-list.html',
   styleUrl: './bar-list.css',
 })
@@ -58,14 +59,6 @@ export class BarList {
   });
 
   protected readonly barCount = computed(() => this.shownBars()?.length ?? 0);
-
-  protected onSearch(event: Event): void {
-    this.query.set((event.target as HTMLInputElement).value);
-  }
-
-  protected clearSearch(): void {
-    this.query.set('');
-  }
 
   protected selectCommunity(event: Event): void {
     const id = Number((event.target as HTMLSelectElement).value);
