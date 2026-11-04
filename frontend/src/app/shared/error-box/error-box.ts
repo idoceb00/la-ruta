@@ -3,10 +3,14 @@ import { booleanAttribute, Component, input, output } from '@angular/core';
 @Component({
   selector: 'app-error-box',
   template: `
-    <div class="rounded-xl border border-red-300 bg-red-50 p-4 text-red-700">
-      <p>{{ message() }}</p>
+    <div role="alert" class="rounded-xs border-[1.5px] border-wine bg-surface px-4 py-3">
+      <p class="text-sm font-medium text-wine">{{ message() }}</p>
       @if (retryable()) {
-        <button type="button" (click)="retry.emit()" class="mt-2 text-sm font-medium underline">
+        <button
+          type="button"
+          (click)="retry.emit()"
+          class="mt-2 cursor-pointer text-xs font-extrabold tracking-wide text-ink uppercase underline underline-offset-2 hover:text-wine"
+        >
           Reintentar
         </button>
       }
