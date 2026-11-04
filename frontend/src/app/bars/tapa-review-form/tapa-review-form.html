@@ -1,23 +1,21 @@
 <form (submit)="onSubmit($event)" class="flex flex-col gap-4">
-  <div class="flex items-end gap-6">
-    <label class="flex flex-col gap-1.5">
-      <span class="eyebrow">Nota (0–5)</span>
-      <span class="w-24">
-        <input appInput type="text" inputmode="numeric" autocomplete="off" [formField]="reviewForm.rating" />
-      </span>
-    </label>
-
-    <label class="flex cursor-pointer items-center gap-2 pb-3">
-      <input type="checkbox" [formField]="reviewForm.fav" class="size-5 cursor-pointer accent-wine" />
-      <span class="eyebrow">Favorita</span>
-    </label>
+  <div class="flex flex-col gap-1.5">
+    <span class="eyebrow">Nota</span>
+    <div class="flex items-center gap-3">
+      <app-star-rating [value]="rating()" [max]="5" [disabled]="saving()" (valueChange)="setRating($event)" />
+      @if (rating() !== null) {
+        <p>
+          <span class="font-display text-2xl font-extrabold">{{ rating() }}</span>
+          <span class="text-sm font-bold text-muted">/5</span>
+        </p>
+      }
+    </div>
   </div>
 
-  @if (reviewForm.rating().touched() && reviewForm.rating().invalid()) {
-    @for (error of reviewForm.rating().errors(); track $index) {
-      <p class="-mt-2 text-xs font-medium text-wine">{{ error.message }}</p>
-    }
-  }
+  <label class="flex cursor-pointer items-center gap-2">
+    <input type="checkbox" [formField]="reviewForm.fav" class="size-5 cursor-pointer accent-wine" />
+    <span class="eyebrow">Favorita</span>
+  </label>
 
   <label class="flex flex-col gap-1.5">
     <span class="eyebrow">Notas</span>
@@ -31,7 +29,7 @@
   }
 
   <p class="text-xs text-muted">
-    Si vacías la nota y las notas y quitas la favorita, se borrará tu valoración.
+    Toca la misma estrella para quitar la nota. Si quitas la nota, vacías las notas y desmarcas la favorita, se borrará tu valoración.
   </p>
 
   <div class="grid grid-cols-2 gap-2">

@@ -8,12 +8,12 @@ const STARS = 5;
     <div class="flex gap-0.5" [attr.role]="readOnly() ? 'img' : 'group'" [attr.aria-label]="label()">
       @for (star of stars; track star) {
         <span class="relative inline-block size-10">
-          <svg viewBox="0 0 24 24" aria-hidden="true" class="absolute inset-0 size-10 text-line">
-            <path [attr.d]="path" fill="currentColor" />
-          </svg>
+            <svg viewBox="0 0 24 24" aria-hidden="true" class="absolute inset-0 size-10 text-line">
+                <path [attr.d]="path" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+            </svg>
           <span class="absolute inset-y-0 left-0 overflow-hidden" [style.width.%]="fill(star)">
-            <svg viewBox="0 0 24 24" aria-hidden="true" class="size-10 text-wine">
-              <path [attr.d]="path" fill="currentColor" />
+            <svg viewBox="0 0 24 24" aria-hidden="true" class="size-10 text-mustard">
+              <path [attr.d]="path" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
             </svg>
           </span>
 
