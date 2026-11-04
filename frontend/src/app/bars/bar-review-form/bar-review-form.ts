@@ -1,18 +1,21 @@
-import { Component, inject, input, linkedSignal, output } from '@angular/core';
-import { form, FormField, maxLength, pattern } from '@angular/forms/signals';
+import { Component, computed, inject, input, linkedSignal, output } from '@angular/core';
+import { form, FormField, maxLength } from '@angular/forms/signals';
 import { Observable } from 'rxjs';
 import { BarService } from '../bar-service';
 import { MyBarReview } from '../bar.model';
 import { toNullable } from '../../shared/to-nullable';
+import { Button } from '../../shared/button/button';
+import { TextInput } from '../../shared/text-input/text-input';
+import { ErrorBox } from '../../shared/error-box/error-box';
+import { StarRating } from '../../shared/star-rating/star-rating';
 
-interface BarReviewFormModel {
-  rating: string;
+interface NotesFormModel {
   notes: string;
 }
 
 @Component({
   selector: 'app-bar-review-form',
-  imports: [FormField],
+  imports: [FormField, Button, TextInput, ErrorBox, StarRating],
   templateUrl: './bar-review-form.html',
   styleUrl: './bar-review-form.css',
 })
@@ -25,42 +28,67 @@ export class BarReviewForm {
   // Tells the parent to reload the bar detail
   readonly saved = output<void>();
 
-  // Both reset to false whenever a new review arrives from the parent
+  // All of them reset whenever a new review arrives from the parent
   protected readonly editing = linkedSignal({ source: this.review, computation: () => false });
   protected readonly saving = linkedSignal({ source: this.review, computation: () => false });
-
   protected readonly saveError = linkedSignal<MyBarReview | null, string | null>({
     source: this.review,
     computation: () => null,
   });
 
-  // Starts from the current review and then follows what the user types
-  private readonly model = linkedSignal(() => toFormModel(this.review()));
+  // Rating tapped but not confirmed by the server yet (undefined = nothing pending)
+  private readonly pendingRating = linkedSignal<MyBarReview | null, number | null | undefined>({
+    source: this.review,
+    computation: () => undefined,
+  });
 
-  protected readonly reviewForm = form(this.model, (path) => {
-    pattern(path.rating, /^\s*(?:[0-9]|10)\s*$/, {
-      message: 'La nota debe ser un número entero del 0 al 10.',
-    });
+  protected readonly shownRating = computed(() => {
+    const pending = this.pendingRating();
+    return pending !== undefined ? pending : (this.review()?.rating ?? null);
+  });
+
+  // Starts from the current notes and then follows what the user types
+  private readonly model = linkedSignal<NotesFormModel>(() => ({ notes: this.review()?.notes ?? '' }));
+
+  protected readonly notesForm = form(this.model, (path) => {
     maxLength(path.notes, 1000, { message: 'Máximo 1000 caracteres.' });
   });
 
+  protected rate(rating: number | null): void {
+    if (this.saving()) {
+      return;
+    }
+    this.pendingRating.set(rating);
+    this.send(rating, this.review()?.notes ?? null);
+  }
+
   protected cancel(): void {
-    this.model.set(toFormModel(this.review()));
+    this.model.set({ notes: this.review()?.notes ?? '' });
     this.saveError.set(null);
     this.editing.set(false);
   }
 
   protected onSubmit(event: Event): void {
     event.preventDefault();
-    if (this.reviewForm().invalid() || this.saving()) {
+    if (this.notesForm().invalid() || this.saving()) {
       return;
     }
+    this.send(this.shownRating(), toNullable(this.model().notes));
+  }
 
-    const request$ = this.buildRequest();
-    if (!request$) {
-      // Empty form and no previous review: nothing to save or delete
-      this.editing.set(false);
-      return;
+  private send(rating: number | null, notes: string | null): void {
+    let request$: Observable<void>;
+
+    if (rating === null && notes === null) {
+      if (!this.review()) {
+        // Nothing saved and nothing to save
+        this.pendingRating.set(undefined);
+        this.editing.set(false);
+        return;
+      }
+      request$ = this.barService.deleteMyReview(this.barId());
+    } else {
+      request$ = this.barService.saveMyReview(this.barId(), { rating, notes });
     }
 
     this.saving.set(true);
@@ -71,29 +99,8 @@ export class BarReviewForm {
       error: () => {
         this.saveError.set('No se ha podido guardar tu valoración. Inténtalo de nuevo.');
         this.saving.set(false);
+        this.pendingRating.set(undefined);
       },
     });
   }
-
-  private buildRequest(): Observable<void> | null {
-    const { rating, notes } = this.model();
-    const trimmedRating = rating.trim();
-
-    const request = {
-      rating: trimmedRating === '' ? null : Number(trimmedRating),
-      notes: toNullable(notes),
-    };
-
-    if (request.rating === null && request.notes === null) {
-      return this.review() ? this.barService.deleteMyReview(this.barId()) : null;
-    }
-    return this.barService.saveMyReview(this.barId(), request);
-  }
-}
-
-function toFormModel(review: MyBarReview | null): BarReviewFormModel {
-  return {
-    rating: review?.rating?.toString() ?? '',
-    notes: review?.notes ?? '',
-  };
 }

@@ -5,6 +5,9 @@ import { MyTapaReview } from '../bar.model';
 import { TapaReviewRequest } from '../../tapas/tapa.model';
 import { TapaService } from '../../tapas/tapa-service';
 import { toNullable } from '../../shared/to-nullable';
+import { Button } from '../../shared/button/button';
+import { TextInput } from '../../shared/text-input/text-input';
+import { ErrorBox } from '../../shared/error-box/error-box';
 
 interface TapaReviewFormModel {
   rating: string;
@@ -14,7 +17,7 @@ interface TapaReviewFormModel {
 
 @Component({
   selector: 'app-tapa-review-form',
-  imports: [FormField],
+  imports: [FormField, Button, TextInput, ErrorBox],
   templateUrl: './tapa-review-form.html',
   styleUrl: './tapa-review-form.css',
 })

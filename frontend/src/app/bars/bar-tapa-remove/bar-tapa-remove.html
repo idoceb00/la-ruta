@@ -1,41 +1,31 @@
-<div class="mt-4 border-t border-stone-200 pt-3">
+<div class="mt-4 border-t border-line pt-3">
   @if (!confirming()) {
-    <button
-      type="button"
-      (click)="confirming.set(true)"
-      class="text-sm font-medium text-red-600 hover:underline"
-    >
+    <button type="button" (click)="confirming.set(true)" class="eyebrow cursor-pointer text-wine hover:underline">
       Quitar tapa del bar
     </button>
   } @else {
-    <div class="rounded-lg border border-red-300 bg-red-50 p-3">
-      <p class="font-medium text-red-800">¿Quitar {{ tapaName() }} de este bar?</p>
-      <p class="mt-1 text-sm text-red-700">
+    <div
+      role="alertdialog"
+      [attr.aria-label]="'Quitar ' + tapaName() + ' de este bar'"
+      class="rounded-xs border-[1.5px] border-wine bg-paper p-3"
+    >
+      <p class="font-bold">¿Quitar {{ tapaName() }} de este bar?</p>
+      <p class="mt-1 text-sm text-muted">
         Se quitará para toda la comunidad, junto con todas sus valoraciones en este bar.
         En los demás bares que la pongan seguirá igual.
       </p>
 
-      <div class="mt-3 flex gap-2">
-        <button
-          type="button"
-          (click)="remove()"
-          [disabled]="removing()"
-          class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-        >
-          {{ removing() ? 'Quitando…' : 'Sí, quitar' }}
-        </button>
-        <button
-          type="button"
-          (click)="confirming.set(false)"
-          [disabled]="removing()"
-          class="rounded-lg border border-stone-300 px-4 py-2 text-sm font-medium disabled:opacity-50"
-        >
+      <div class="mt-3 grid grid-cols-2 gap-2">
+        <button appButton variant="secondary" type="button" (click)="confirming.set(false)" [disabled]="removing()">
           Cancelar
+        </button>
+        <button appButton type="button" (click)="remove()" [disabled]="removing()">
+          {{ removing() ? 'Quitando…' : 'Sí, quitar' }}
         </button>
       </div>
 
       @if (removeError(); as message) {
-        <p class="mt-2 text-sm text-red-700">{{ message }}</p>
+        <app-error-box class="mt-3" [message]="message" />
       }
     </div>
   }

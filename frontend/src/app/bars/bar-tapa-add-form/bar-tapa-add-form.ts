@@ -6,6 +6,9 @@ import { debounceTime, distinctUntilChanged, map } from 'rxjs';
 import { BarTapaSummary } from '../bar.model';
 import { Tapa } from '../../tapas/tapa.model';
 import { TapaService } from '../../tapas/tapa-service';
+import { Button } from '../../shared/button/button';
+import { TextInput } from '../../shared/text-input/text-input';
+import { ErrorBox } from '../../shared/error-box/error-box';
 
 interface AddTapaFormModel {
   name: string;
@@ -13,7 +16,7 @@ interface AddTapaFormModel {
 
 @Component({
   selector: 'app-bar-tapa-add-form',
-  imports: [FormField],
+  imports: [FormField, Button, TextInput, ErrorBox],
   templateUrl: './bar-tapa-add-form.html',
   styleUrl: './bar-tapa-add-form.css',
 })

@@ -1,67 +1,53 @@
 @if (open()) {
-  <form (submit)="onSubmit($event)" class="mt-3 space-y-2 rounded-lg border border-stone-200 p-3">
-    <label for="new-tapa-name" class="block text-sm font-medium text-stone-700">Nombre de la tapa</label>
-    <input
-      id="new-tapa-name"
-      type="text"
-      autocomplete="off"
-      [formField]="addForm.name"
-      class="w-full rounded-lg border border-stone-300 px-3 py-2"
-    />
+  <form (submit)="onSubmit($event)" class="mt-4 flex flex-col gap-3 border-[1.5px] border-ink bg-surface p-4">
+    <label class="flex flex-col gap-1.5">
+      <span class="eyebrow">Nombre de la tapa</span>
+      <input appInput type="text" autocomplete="off" [formField]="addForm.name" />
+    </label>
 
     @if (addForm.name().touched() && addForm.name().invalid()) {
       @for (error of addForm.name().errors(); track $index) {
-        <p class="text-sm text-red-700">{{ error.message }}</p>
+        <p class="text-xs font-medium text-wine">{{ error.message }}</p>
       }
     }
     @if (isDuplicate()) {
-      <p class="text-sm text-red-700">Esta tapa ya está en el bar.</p>
+      <p class="text-xs font-medium text-wine">Esta tapa ya está en el bar.</p>
     }
 
     @if (suggestions().length > 0) {
-      <ul class="divide-y divide-stone-200 rounded-lg border border-stone-200">
-        @for (suggestion of suggestions(); track suggestion.id) {
-          <li>
-            <button
-              type="button"
-              (click)="selectSuggestion(suggestion)"
-              class="w-full px-3 py-2 text-left text-sm text-stone-700 hover:bg-stone-50"
-            >
-              {{ suggestion.name }}
-            </button>
-          </li>
-        }
-      </ul>
+      <div>
+        <p class="eyebrow text-muted">Ya en el catálogo</p>
+        <ul class="mt-1.5 divide-y divide-line border border-line">
+          @for (suggestion of suggestions(); track suggestion.id) {
+            <li>
+              <button
+                type="button"
+                (click)="selectSuggestion(suggestion)"
+                class="w-full cursor-pointer px-3 py-2 text-left text-sm hover:bg-panel"
+              >
+                {{ suggestion.name }}
+              </button>
+            </li>
+          }
+        </ul>
+      </div>
     }
 
-    <div class="flex gap-2 pt-1">
-      <button
-        type="submit"
-        [disabled]="addForm().invalid() || isDuplicate() || saving()"
-        class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-      >
-        {{ saving() ? 'Añadiendo…' : 'Añadir' }}
-      </button>
-      <button
-        type="button"
-        (click)="cancel()"
-        [disabled]="saving()"
-        class="rounded-lg border border-stone-300 px-4 py-2 text-sm font-medium disabled:opacity-50"
-      >
+    <div class="grid grid-cols-2 gap-2 pt-1">
+      <button appButton variant="secondary" type="button" (click)="cancel()" [disabled]="saving()">
         Cancelar
+      </button>
+      <button appButton type="submit" [disabled]="addForm().invalid() || isDuplicate() || saving()">
+        {{ saving() ? 'Añadiendo…' : 'Añadir' }}
       </button>
     </div>
 
     @if (saveError(); as message) {
-      <p class="text-sm text-red-700">{{ message }}</p>
+      <app-error-box [message]="message" />
     }
   </form>
 } @else {
-  <button
-    type="button"
-    (click)="open.set(true)"
-    class="mt-3 text-sm font-medium text-amber-700 hover:underline"
-  >
+  <button appButton variant="secondary" type="button" (click)="open.set(true)" class="mt-4">
     + Añadir tapa
   </button>
 }
