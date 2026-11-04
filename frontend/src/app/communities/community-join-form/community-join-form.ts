@@ -3,10 +3,13 @@ import { Component, inject, output, signal } from '@angular/core';
 import { form, FormField, required } from '@angular/forms/signals';
 import { Community, JoinCommunityRequest } from '../community.model';
 import { CommunityService } from '../community-service';
+import { Button } from '../../shared/button/button';
+import { TextInput } from '../../shared/text-input/text-input';
+import { ErrorBox } from '../../shared/error-box/error-box';
 
 @Component({
   selector: 'app-community-join-form',
-  imports: [FormField],
+  imports: [FormField, Button, TextInput, ErrorBox],
   templateUrl: './community-join-form.html',
   styleUrl: './community-join-form.css',
 })

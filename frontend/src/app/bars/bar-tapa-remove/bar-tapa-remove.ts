@@ -1,9 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, input, output, signal } from '@angular/core';
 import { TapaService } from '../../tapas/tapa-service';
+import { Button } from '../../shared/button/button';
+import { ErrorBox } from '../../shared/error-box/error-box';
 
 @Component({
   selector: 'app-bar-tapa-remove',
+  imports: [Button, ErrorBox],
   templateUrl: './bar-tapa-remove.html',
   styleUrl: './bar-tapa-remove.css',
 })

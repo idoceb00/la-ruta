@@ -1,31 +1,27 @@
-<form (submit)="onSubmit($event)" class="space-y-2">
-  <label for="invite-code" class="block text-sm font-medium">Unirse con código</label>
-
-  <div class="flex gap-2">
+<form (submit)="onSubmit($event)" class="flex flex-col gap-3 border-[1.5px] border-ink bg-surface p-4">
+  <label class="flex flex-col gap-1.5">
+    <span class="eyebrow">Código de invitación</span>
     <input
-      id="invite-code"
+      appInput
       type="text"
-      placeholder="Código de invitación"
+      placeholder="Pídeselo a alguien de la comunidad"
       autocomplete="off"
+      spellcheck="false"
       [formField]="joinForm.inviteCode"
-      class="flex-1 rounded-lg border border-gray-300 px-3 py-2"
     />
-    <button
-      type="submit"
-      [disabled]="joinForm().invalid() || submitting()"
-      class="rounded-lg bg-gray-900 px-4 py-2 font-medium text-white disabled:opacity-50"
-    >
-      {{ submitting() ? 'Uniendo…' : 'Unirse' }}
-    </button>
-  </div>
+  </label>
 
   @if (joinForm.inviteCode().touched() && joinForm.inviteCode().invalid()) {
     @for (error of joinForm.inviteCode().errors(); track error.kind) {
-      <p class="text-sm text-red-600">{{ error.message }}</p>
+      <p class="text-xs font-medium text-wine">{{ error.message }}</p>
     }
   }
 
   @if (serverError(); as message) {
-    <p class="text-sm text-red-600">{{ message }}</p>
+    <app-error-box [message]="message" />
   }
+
+  <button appButton type="submit" [disabled]="joinForm().invalid() || submitting()">
+    {{ submitting() ? 'Uniéndote…' : 'Unirse' }}
+  </button>
 </form>

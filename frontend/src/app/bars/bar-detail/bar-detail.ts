@@ -6,12 +6,13 @@ import { BarService } from '../bar-service';
 import { BarLocationPipe } from '../bar-location-pipe';
 import { Loading } from '../../shared/loading/loading';
 import { ErrorBox } from '../../shared/error-box/error-box';
+import { Button } from '../../shared/button/button';
 import { BarReviewForm } from '../bar-review-form/bar-review-form';
 import { BarTapaList } from '../bar-tapa-list/bar-tapa-list';
 
 @Component({
   selector: 'app-bar-detail',
-  imports: [DecimalPipe, RouterLink, BarLocationPipe, Loading, ErrorBox, BarReviewForm, BarTapaList],
+  imports: [DecimalPipe, RouterLink, BarLocationPipe, Loading, ErrorBox, Button, BarReviewForm, BarTapaList],
   templateUrl: './bar-detail.html',
   styleUrl: './bar-detail.css',
 })
@@ -24,6 +25,16 @@ export class BarDetail {
   protected readonly bar = rxResource({
     params: () => this.id(),
     stream: ({ params: id }) => this.barService.getBar(id),
+  });
+
+  // Google Maps search link, only when there is something to locate
+  protected readonly mapsUrl = computed(() => {
+    const bar = this.bar.value();
+    if (!bar || (!bar.address && !bar.city)) {
+      return null;
+    }
+    const query = [bar.name, bar.address, bar.city].filter(Boolean).join(', ');
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
   });
 
   protected readonly confirmingDelete = signal(false);

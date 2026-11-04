@@ -8,8 +8,10 @@ import { ActiveCommunityService } from '../../communities/active-community-servi
 import { Bar, BarRequest } from '../bar.model';
 import { BarService } from '../bar-service';
 import { Loading } from '../../shared/loading/loading';
-import { ErrorBox } from '../../shared/error-box/error-box';
 import { toNullable } from '../../shared/to-nullable';
+import { ErrorBox } from '../../shared/error-box/error-box';
+import { Button } from '../../shared/button/button';
+import { TextInput } from '../../shared/text-input/text-input';
 
 interface BarFormModel {
   name: string;
@@ -20,7 +22,7 @@ interface BarFormModel {
 
 @Component({
   selector: 'app-bar-form',
-  imports: [FormField, RouterLink, NgTemplateOutlet, Loading, ErrorBox],
+  imports: [FormField, RouterLink, NgTemplateOutlet, Loading, ErrorBox, Button, TextInput],
   templateUrl: './bar-form.html',
   styleUrl: './bar-form.css',
 })
@@ -80,7 +82,7 @@ export class BarForm {
 
     request$.subscribe({
       next: (bar) => {
-        void this.router.navigate(this.isEdit() ? ['/bars', bar.id] : ['/']);
+        void this.router.navigate(['/bars', bar.id]);
       },
       error: () => {
         this.saveError.set('No se ha podido guardar el bar. Inténtalo de nuevo.');

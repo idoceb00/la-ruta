@@ -1,3 +1,27 @@
-/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/roboto-condensed";
 
-@import 'tailwindcss';
+@theme {
+  --color-paper: #f4f0e6;
+  --color-surface: #fffdf8;
+  --color-panel: #e8dfc9;
+  --color-ink: #171714;
+  --color-muted: #666156;
+  --color-line: #b9b09d;
+  --color-wine: #8f1d2c;
+  --color-mustard: #d3ad5b;
+
+  --font-sans: "Inter Variable", system-ui, sans-serif;
+  --font-display: "Roboto Condensed Variable", "Arial Narrow", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-paper font-sans text-ink antialiased;
+  }
+}
+
+@utility eyebrow {
+  @apply text-[11px] font-extrabold tracking-wide uppercase;
+}

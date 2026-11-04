@@ -1,21 +1,27 @@
 import { Component, inject, signal } from '@angular/core';
-import { AbstractControl, FormBuilder, ReactiveFormsModule,       
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
   ValidationErrors,
   ValidatorFn,
-  Validators
-} from '@angular/forms'
+  Validators,
+} from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Router, RouterLink} from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../auth-service';
+import { ErrorBox } from '../../shared/error-box/error-box';
+import { Button } from '../../shared/button/button';
+import { TextInput } from '../../shared/text-input/text-input';
 
 const passwordsMatch: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
   const password = group.get('password')?.value;
   const confirmPassword = group.get('confirmPassword')?.value;
-  return password === confirmPassword ? null : { passwordsMismatch: true};
+  return password === confirmPassword ? null : { passwordsMismatch: true };
 };
 
 @Component({
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, ErrorBox, Button, TextInput],
   selector: 'app-register',
   styleUrl: './register.css',
   templateUrl: './register.html',
@@ -32,9 +38,9 @@ export class Register {
     {
       username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
       password: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(72)]],
-      confirmPassword: ['', Validators.required]
+      confirmPassword: ['', Validators.required],
     },
-    { validators: passwordsMatch }
+    { validators: passwordsMatch },
   );
 
   protected onSubmit(): void {
@@ -49,19 +55,22 @@ export class Register {
     const { username, password } = this.form.getRawValue();
 
     this.authService.register({ username, password }).subscribe({
-      next: () => this.router.navigate(['/']),
+      next: () => void this.router.navigate(['/']),
       error: (err: HttpErrorResponse) => {
         this.errorMessage.set(this.messageFor(err.status));
         this.loading.set(false);
-      }
+      },
     });
   }
 
   private messageFor(status: number): string {
     switch (status) {
-      case 409: return 'Ese nombre de usuario ya existe.';
-      case 400: return 'Revisa los datos introducidos.';
-      default: return 'No se ha podido conectar con el servidor.';
+      case 409:
+        return 'Ese nombre de usuario ya existe.';
+      case 400:
+        return 'Revisa los datos introducidos.';
+      default:
+        return 'No se ha podido conectar con el servidor.';
     }
   }
 }

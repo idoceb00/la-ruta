@@ -1,20 +1,24 @@
-import { Component, inject, input, linkedSignal, output, signal } from '@angular/core';
-import { form, FormField, maxLength, pattern } from '@angular/forms/signals';
+import { Component, computed, inject, input, linkedSignal, output, signal } from '@angular/core';
+import { form, FormField, maxLength } from '@angular/forms/signals';
 import { Observable } from 'rxjs';
 import { MyTapaReview } from '../bar.model';
 import { TapaReviewRequest } from '../../tapas/tapa.model';
 import { TapaService } from '../../tapas/tapa-service';
 import { toNullable } from '../../shared/to-nullable';
+import { Button } from '../../shared/button/button';
+import { TextInput } from '../../shared/text-input/text-input';
+import { ErrorBox } from '../../shared/error-box/error-box';
+import { StarRating } from '../../shared/star-rating/star-rating';
 
 interface TapaReviewFormModel {
-  rating: string;
+  rating: number | null;
   notes: string;
   fav: boolean;
 }
 
 @Component({
   selector: 'app-tapa-review-form',
-  imports: [FormField],
+  imports: [FormField, Button, TextInput, ErrorBox, StarRating],
   templateUrl: './tapa-review-form.html',
   styleUrl: './tapa-review-form.css',
 })
@@ -36,11 +40,14 @@ export class TapaReviewForm {
   private readonly model = linkedSignal(() => toFormModel(this.review()));
 
   protected readonly reviewForm = form(this.model, (path) => {
-    pattern(path.rating, /^\s*[0-5]\s*$/, {
-      message: 'La nota debe ser un número entero del 0 al 5.',
-    });
     maxLength(path.notes, 1000, { message: 'Máximo 1000 caracteres.' });
   });
+
+  protected readonly rating = computed(() => this.model().rating);
+
+  protected setRating(rating: number | null): void {
+    this.model.update((current) => ({ ...current, rating }));
+  }
 
   protected onSubmit(event: Event): void {
     event.preventDefault();
@@ -69,10 +76,9 @@ export class TapaReviewForm {
 
   private buildRequest(): Observable<void> | null {
     const { rating, notes, fav } = this.model();
-    const trimmedRating = rating.trim();
 
     const request: TapaReviewRequest = {
-      rating: trimmedRating === '' ? null : Number(trimmedRating),
+      rating,
       notes: toNullable(notes),
       fav,
     };
@@ -88,7 +94,7 @@ export class TapaReviewForm {
 
 function toFormModel(review: MyTapaReview | null): TapaReviewFormModel {
   return {
-    rating: review?.rating?.toString() ?? '',
+    rating: review?.rating ?? null,
     notes: review?.notes ?? '',
     fav: review?.fav ?? false,
   };

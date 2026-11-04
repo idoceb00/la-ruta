@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CommunityDetail } from './community-detail';
+import { CommunityDialog } from './community-dialog';
 
-describe('CommunityDetail', () => {
-  let component: CommunityDetail;
-  let fixture: ComponentFixture<CommunityDetail>;
+describe('CommunityDialog', () => {
+  let component: CommunityDialog;
+  let fixture: ComponentFixture<CommunityDialog>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CommunityDetail],
+      imports: [CommunityDialog],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(CommunityDetail);
+    fixture = TestBed.createComponent(CommunityDialog);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
