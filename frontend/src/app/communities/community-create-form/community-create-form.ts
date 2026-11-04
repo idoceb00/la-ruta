@@ -2,10 +2,13 @@ import { Component, inject, output, signal } from '@angular/core';
 import { form, FormField, maxLength, required } from '@angular/forms/signals';
 import { Community, CommunityRequest } from '../community.model';
 import { CommunityService } from '../community-service';
+import { Button } from '../../shared/button/button';
+import { TextInput } from '../../shared/text-input/text-input';
+import { ErrorBox } from '../../shared/error-box/error-box';
 
 @Component({
   selector: 'app-community-create-form',
-  imports: [FormField],
+  imports: [FormField, Button, TextInput, ErrorBox],
   templateUrl: './community-create-form.html',
   styleUrl: './community-create-form.css',
 })
