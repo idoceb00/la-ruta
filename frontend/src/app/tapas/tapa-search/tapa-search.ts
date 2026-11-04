@@ -2,16 +2,19 @@ import { DecimalPipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { debounceTime, distinctUntilChanged, map } from 'rxjs';
+import { debounce, distinctUntilChanged, map, timer } from 'rxjs';
 import { ActiveCommunityService } from '../../communities/active-community-service';
 import { Loading } from '../../shared/loading/loading';
 import { ErrorBox } from '../../shared/error-box/error-box';
+import { Button } from '../../shared/button/button';
+import { SearchBox } from '../../shared/search-box/search-box';
+import { HighlightText } from '../../shared/highlight-text/highlight-text';
 import { Tapa } from '../tapa.model';
 import { TapaService } from '../tapa-service';
 
 @Component({
   selector: 'app-tapa-search',
-  imports: [DecimalPipe, RouterLink, Loading, ErrorBox],
+  imports: [DecimalPipe, RouterLink, Loading, ErrorBox, Button, SearchBox, HighlightText],
   templateUrl: './tapa-search.html',
   styleUrl: './tapa-search.css',
 })
@@ -25,11 +28,11 @@ export class TapaSearch {
   // The catalog tapa the user picked; null while still searching
   protected readonly selectedTapa = signal<Tapa | null>(null);
 
-  // What is actually sent to the API, once the user stops typing
-  private readonly debouncedQuery = toSignal(
+  // What is actually sent to the API: waits while typing, but clears instantly
+  protected readonly debouncedQuery = toSignal(
     toObservable(this.query).pipe(
       map((q) => q.trim()),
-      debounceTime(300),
+      debounce((q) => timer(q ? 300 : 0)),
       distinctUntilChanged(),
     ),
     { initialValue: '' },
@@ -58,13 +61,8 @@ export class TapaSearch {
     stream: ({ params }) => this.tapaService.getBarsWithTapa(params.communityId, params.tapaId),
   });
 
-  protected onSearch(event: Event): void {
-    this.query.set((event.target as HTMLInputElement).value);
-    this.selectedTapa.set(null);
-  }
-
-  protected clearSearch(): void {
-    this.query.set('');
+  protected onSearch(value: string): void {
+    this.query.set(value);
     this.selectedTapa.set(null);
   }
 

@@ -1,101 +1,108 @@
 <section class="mx-auto max-w-2xl">
-  <a routerLink="/" class="text-sm text-stone-500 hover:underline">← Mis bares</a>
-  <h1 class="mt-4 mb-4 text-2xl font-bold text-stone-800">Buscar por tapa</h1>
+  <a routerLink="/" class="eyebrow text-muted hover:text-ink">← Buscar bares</a>
+
+  <p class="eyebrow mt-6 text-wine">Decide sobre la marcha</p>
+  <h1 class="mt-1 font-display text-4xl leading-none font-extrabold uppercase">¿Qué te apetece?</h1>
+  <p class="mt-2 text-sm text-muted">Escribe una tapa y te decimos qué bares la ponen.</p>
 
   @if (active.communities.isLoading() && !active.communities.hasValue()) {
-    <app-loading />
+    <app-loading class="mt-6" />
   } @else if (active.communities.error()) {
-    <app-error-box message="No se han podido cargar tus comunidades." retryable (retry)="active.reload()" />
+    <app-error-box
+      class="mt-6"
+      message="No se han podido cargar tus comunidades."
+      retryable
+      (retry)="active.reload()"
+    />
   } @else if (active.activeCommunity(); as community) {
-    <div class="relative mb-4">
-      <input
-        type="search"
-        [value]="query()"
-        (input)="onSearch($event)"
-        (keydown.escape)="clearSearch()"
-        placeholder="¿Qué tapa buscas?"
-        enterkeyhint="search"
-        autocomplete="off"
-        class="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 pr-10 [&::-webkit-search-cancel-button]:appearance-none"
-      />
-      @if (query()) {
-        <button
-          type="button"
-          (click)="clearSearch()"
-          aria-label="Borrar búsqueda"
-          class="absolute top-1/2 right-3 -translate-y-1/2 px-1 text-stone-400 hover:text-stone-600"
-        >
-          ✕
-        </button>
-      }
-    </div>
+    <app-search-box
+      class="mt-5"
+      [value]="query()"
+      (valueChange)="onSearch($event)"
+      placeholder="Tortilla, bravas, morcilla…"
+      label="Buscar tapa"
+    />
 
     @if (selectedTapa(); as tapa) {
       @if (results.error()) {
-        <app-error-box message="No se han podido cargar los bares." retryable (retry)="results.reload()" />
+        <app-error-box
+          class="mt-6"
+          message="No se han podido cargar los bares."
+          retryable
+          (retry)="results.reload()"
+        />
       } @else if (results.hasValue()) {
-        <p class="mb-3 text-sm text-stone-500">Bares de {{ community.name }} con {{ tapa.name }}</p>
-        <ul class="flex flex-col gap-3 transition-opacity" [class.opacity-60]="results.isLoading()">
+        <p class="eyebrow mt-6 border-b-2 border-ink pb-2 text-muted">
+          {{ results.value().length }} {{ results.value().length === 1 ? 'bar' : 'bares' }}
+          de {{ community.name }}
+        </p>
+        <ul class="transition-opacity" [class.opacity-60]="results.isLoading()">
           @for (barTapa of results.value(); track barTapa.barId) {
             <li>
-              <a
-                [routerLink]="['/bars', barTapa.barId]"
-                class="flex items-center justify-between gap-4 rounded-xl bg-white p-4 shadow-sm"
-              >
-                <span class="min-w-0 font-medium text-stone-800">{{ barTapa.barName }}</span>
-                @if (barTapa.averageRating !== null) {
-                  <span class="shrink-0 text-right">
-                    <span class="rounded-full bg-amber-100 px-2 py-0.5 text-sm font-semibold text-amber-800">
-                      {{ barTapa.averageRating | number: '1.0-1' }}/5
-                    </span>
-                    <span class="mt-1 block text-xs text-stone-500">
-                      {{ barTapa.ratingCount }} {{ barTapa.ratingCount === 1 ? 'valoración' : 'valoraciones' }}
-                    </span>
-                  </span>
-                } @else {
-                  <span class="shrink-0 text-sm text-stone-400">Sin valoraciones</span>
-                }
+              <a [routerLink]="['/bars', barTapa.barId]" class="group block border-b border-ink py-4">
+                <div class="flex items-start justify-between gap-4">
+                  <h2 class="min-w-0 font-display text-2xl leading-tight font-extrabold uppercase group-hover:text-wine">
+                    {{ barTapa.barName }}
+                  </h2>
+                  @if (barTapa.averageRating !== null) {
+                    <div class="shrink-0 text-right">
+                      <span class="font-display text-2xl font-extrabold">{{ barTapa.averageRating | number: '1.0-1' }}</span>
+                      <span class="text-xs font-bold text-muted">/5</span>
+                      <p class="eyebrow text-muted">
+                        {{ barTapa.ratingCount }} {{ barTapa.ratingCount === 1 ? 'valoración' : 'valoraciones' }}
+                      </p>
+                    </div>
+                  } @else {
+                    <span class="eyebrow shrink-0 pt-2 text-muted">Sin valorar</span>
+                  }
+                </div>
+
+                <div class="mt-2 flex items-center justify-between gap-3 rounded-xs bg-mustard px-3 py-1.5">
+                  <span class="eyebrow shrink-0">Tapa que buscas</span>
+                  <span class="truncate text-sm font-bold">{{ barTapa.tapaName }}</span>
+                </div>
               </a>
             </li>
           } @empty {
-            <p class="text-stone-500">Ningún bar de {{ community.name }} pone {{ tapa.name }} todavía.</p>
+            <li class="py-6 text-muted">Ningún bar de {{ community.name }} pone {{ tapa.name }} todavía.</li>
           }
         </ul>
       } @else {
-        <app-loading message="Buscando bares..." />
+        <app-loading class="mt-6" message="Buscando bares…" />
       }
     } @else if (catalog.error()) {
-      <app-error-box message="No se han podido buscar las tapas." retryable (retry)="catalog.reload()" />
+      <app-error-box
+        class="mt-6"
+        message="No se han podido buscar las tapas."
+        retryable
+        (retry)="catalog.reload()"
+      />
     } @else if (catalog.hasValue()) {
-      <ul class="divide-y divide-stone-200 overflow-hidden rounded-xl border border-stone-200 bg-white">
+      <p class="eyebrow mt-6 border-b-2 border-ink pb-2 text-muted">Elige una tapa</p>
+      <ul>
         @for (tapa of catalog.value(); track tapa.id) {
           <li>
             <button
               type="button"
               (click)="selectTapa(tapa)"
-              class="w-full px-4 py-3 text-left text-stone-800 hover:bg-stone-50"
+              class="flex w-full cursor-pointer items-center justify-between gap-3 border-b border-line py-3 text-left font-bold hover:text-wine"
             >
-              {{ tapa.name }}
+              <app-highlight-text [text]="tapa.name" [query]="debouncedQuery()" />
+              <span aria-hidden="true" class="text-muted">→</span>
             </button>
           </li>
         } @empty {
-          <li class="px-4 py-3 text-stone-500">No hay ninguna tapa que coincida con «{{ query().trim() }}».</li>
+          <li class="py-6 text-muted">No hay ninguna tapa que coincida con «{{ debouncedQuery() }}».</li>
         }
       </ul>
     } @else if (catalog.isLoading()) {
-      <app-loading message="Buscando tapas..." />
-    } @else {
-      <p class="text-stone-500">Escribe el nombre de una tapa para ver qué bares la ponen.</p>
+      <app-loading class="mt-6" message="Buscando tapas…" />
     }
   } @else {
-    <div class="rounded-xl bg-white p-6 text-center shadow-sm">
-      <p class="text-stone-700">Aún no estás en ninguna comunidad.</p>
-      <a
-        routerLink="/communities"
-        class="mt-4 inline-block rounded-lg bg-amber-700 px-4 py-2 text-sm font-medium text-white"
-      >
-        Ir a comunidades
-      </a>
+    <div class="mx-auto mt-6 max-w-sm border-[1.5px] border-ink bg-surface p-6 text-center">
+      <h2 class="font-display text-2xl font-extrabold uppercase">Aún no estás en ninguna comunidad</h2>
+      <p class="mt-2 text-sm text-muted">Crea una o únete con un código para buscar tapas.</p>
+      <a appButton routerLink="/communities" class="mt-5">Ir a comunidades</a>
     </div>
   }
 </section>
