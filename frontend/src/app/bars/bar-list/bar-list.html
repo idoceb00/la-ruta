@@ -3,89 +3,97 @@
 } @else if (active.communities.error()) {
   <app-error-box message="No se han podido cargar tus comunidades." retryable (retry)="active.reload()" />
 } @else if (active.activeCommunity(); as community) {
-  <div class="mb-4 flex items-center justify-between gap-3">
+  <div class="flex items-center justify-between gap-3">
     @if ((active.communities.value()?.length ?? 0) > 1) {
       <select
         (change)="selectCommunity($event)"
-        class="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-medium text-stone-700"
+        aria-label="Comunidad"
+        class="cursor-pointer rounded-xs border-[1.5px] border-ink bg-surface px-2 py-1.5 text-xs font-extrabold uppercase"
       >
         @for (c of active.communities.value(); track c.id) {
           <option [value]="c.id" [selected]="c.id === community.id">{{ c.name }}</option>
         }
       </select>
     } @else {
-      <p class="text-sm font-medium text-stone-700">{{ community.name }}</p>
+      <p class="eyebrow">{{ community.name }}</p>
     }
 
-    <div class="flex items-center gap-3">
-      @if (shownBars()) {
-        <p class="text-sm text-stone-500">
-          {{ barCount() }}
-          @if (searching()) {
-            {{ barCount() === 1 ? 'resultado' : 'resultados' }}
-          } @else {
-            {{ barCount() === 1 ? 'bar' : 'bares' }}
-          }
-        </p>
-      }
-      <a routerLink="/bars/new" class="rounded-lg bg-amber-700 px-3 py-2 text-sm font-medium text-white">
-        + Añadir
-      </a>
-    </div>
+    <a routerLink="/bars/new" class="eyebrow text-wine hover:underline">+ Guardar bar</a>
   </div>
 
-  <div class="relative mb-4">
+  <h1 class="mt-6 font-display text-4xl leading-none font-extrabold uppercase">¿Dónde vamos?</h1>
+  <p class="mt-2 text-sm text-muted">Escribe y tus bares aparecen al momento: nombre, ciudad o zona.</p>
+
+  <div class="relative mt-5">
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.5"
+      class="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted"
+    >
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-4-4" />
+    </svg>
     <input
       type="search"
       [value]="query()"
       (input)="onSearch($event)"
       (keydown.escape)="clearSearch()"
-      placeholder="Buscar por nombre, ciudad o zona"
+      placeholder="Buscar bar…"
+      aria-label="Buscar bar"
       enterkeyhint="search"
       autocomplete="off"
-      class="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 pr-10 [&::-webkit-search-cancel-button]:appearance-none"
+      class="w-full rounded-xs border-2 border-ink bg-surface py-3.5 pr-11 pl-12 text-lg placeholder:text-muted focus:border-wine focus:outline-none [&::-webkit-search-cancel-button]:appearance-none"
     />
     @if (query()) {
       <button
         type="button"
         (click)="clearSearch()"
         aria-label="Borrar búsqueda"
-        class="absolute top-1/2 right-3 -translate-y-1/2 px-1 text-stone-400 hover:text-stone-600"
+        class="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer px-1 text-muted hover:text-ink"
       >
         ✕
       </button>
     }
   </div>
 
-  <a routerLink="/tapas" class="-mt-2 mb-4 inline-block text-sm font-medium text-amber-700 hover:underline">
-    ¿Buscas una tapa concreta? Buscar por tapa →
-  </a>
+  <div class="mt-6 flex items-baseline justify-between gap-3 border-b-2 border-ink pb-2">
+    <p class="eyebrow text-muted">
+      @if (shownBars()) {
+        {{ barCount() }}
+        @if (searching()) {
+          {{ barCount() === 1 ? 'resultado' : 'resultados' }}
+        } @else {
+          {{ barCount() === 1 ? 'bar guardado' : 'bares guardados' }}
+        }
+      }
+    </p>
+    <a routerLink="/tapas" class="eyebrow text-wine hover:underline">Buscar por tapa →</a>
+  </div>
+
   @if (bars.error()) {
-    <app-error-box message="No se han podido cargar los bares." retryable (retry)="bars.reload()" />
+    <app-error-box class="mt-4" message="No se han podido cargar los bares." retryable (retry)="bars.reload()" />
   } @else if (shownBars(); as list) {
-    <section class="flex flex-col gap-3 transition-opacity" [class.opacity-60]="bars.isLoading()">
+    <section class="transition-opacity" [class.opacity-60]="bars.isLoading()">
       @for (bar of list; track bar.id) {
-        <app-bar-card [bar]="bar" />
+        <app-bar-card [bar]="bar" [query]="debouncedQuery()" />
       } @empty {
         @if (searching()) {
-          <p class="text-stone-500">No hay bares que coincidan con «{{ query().trim() }}».</p>
+          <p class="py-6 text-muted">Ningún bar coincide con «{{ query().trim() }}».</p>
         } @else {
-          <p class="text-stone-500">Todavía no hay bares en {{ community.name }}.</p>
+          <p class="py-6 text-muted">Todavía no hay bares en {{ community.name }}.</p>
         }
       }
     </section>
   } @else {
-    <app-loading message="Cargando bares..."/>
+    <app-loading class="mt-4" message="Cargando bares…" />
   }
 } @else {
-  <div class="rounded-xl bg-white p-6 text-center shadow-sm">
-    <p class="text-stone-700">Aún no estás en ninguna comunidad.</p>
-    <p class="mt-1 text-sm text-stone-500">Crea una o únete con un código para empezar a guardar bares.</p>
-    <a
-      routerLink="/communities"
-      class="mt-4 inline-block rounded-lg bg-amber-700 px-4 py-2 text-sm font-medium text-white"
-    >
-      Ir a comunidades
-    </a>
+  <div class="mx-auto max-w-sm border-[1.5px] border-ink bg-surface p-6 text-center">
+    <h1 class="font-display text-2xl font-extrabold uppercase">Aún no estás en ninguna comunidad</h1>
+    <p class="mt-2 text-sm text-muted">Crea una o únete con un código para empezar a guardar bares.</p>
+    <a appButton routerLink="/communities" class="mt-5">Ir a comunidades</a>
   </div>
 }

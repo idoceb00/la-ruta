@@ -8,10 +8,11 @@ import { Bar } from '../bar.model';
 import { BarService } from '../bar-service';
 import { Loading } from '../../shared/loading/loading';
 import { ErrorBox } from '../../shared/error-box/error-box';
+import { Button } from '../../shared/button/button';
 
 @Component({
   selector: 'app-bar-list',
-  imports: [BarCard, RouterLink, Loading, ErrorBox],
+  imports: [BarCard, RouterLink, Loading, ErrorBox, Button],
   templateUrl: './bar-list.html',
   styleUrl: './bar-list.css',
 })
@@ -23,7 +24,7 @@ export class BarList {
   protected readonly query = signal('');
 
   // What is actually sent to the API, once the user stops typing
-  private readonly debouncedQuery = toSignal(
+  protected readonly debouncedQuery = toSignal(
     toObservable(this.query).pipe(
       map((q) => q.trim()),
       debounceTime(300),
