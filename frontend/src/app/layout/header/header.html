@@ -1,28 +1,30 @@
-<header class="border-b-2 border-ink">
-  <div class="mx-auto flex h-14 w-full max-w-5xl items-center justify-between gap-4 px-4 sm:px-6">
-    <a routerLink="/" class="font-display text-2xl font-extrabold tracking-tight uppercase">
-      La Ruta
-    </a>
+@if (!onAuthPage()) {
+  <header class="border-b-2 border-ink">
+    <div class="mx-auto flex h-14 w-full max-w-5xl items-center justify-between gap-4 px-4 sm:px-6">
+      <a routerLink="/" class="font-display text-2xl font-extrabold tracking-tight uppercase">
+        La Ruta
+      </a>
 
-    <nav class="flex items-center gap-4 text-xs font-extrabold tracking-wide uppercase">
-      @if (authService.isAuthenticated()) {
-        <a
-          routerLink="/"
-          routerLinkActive="text-wine"
-          [routerLinkActiveOptions]="{ exact: true }"
-          class="hover:text-wine"
-        >
-          Mis bares
-        </a>
-        <a routerLink="/communities" routerLinkActive="text-wine" class="hover:text-wine">
-          Comunidades
-        </a>
-        <button type="button" (click)="logout()" class="cursor-pointer uppercase hover:text-wine">
-          Salir
-        </button>
-      } @else if(!onAuthPage()){
-        <a routerLink="/login" class="hover:text-wine">Entrar</a>
-      }
-    </nav>
-  </div>
-</header>
+      <nav class="flex items-center gap-4 text-xs font-extrabold tracking-wide uppercase">
+        @if (authService.isAuthenticated()) {
+          <a
+            routerLink="/"
+            routerLinkActive="text-wine"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="hover:text-wine"
+          >
+            Mis bares
+          </a>
+          <a routerLink="/communities" routerLinkActive="text-wine" class="hover:text-wine">
+            Comunidades
+          </a>
+          <button type="button" (click)="logout()" class="cursor-pointer uppercase hover:text-wine">
+            Salir
+          </button>
+        } @else {
+          <a routerLink="/login" class="hover:text-wine">Entrar</a>
+        }
+      </nav>
+    </div>
+  </header>
+}
