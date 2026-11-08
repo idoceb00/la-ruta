@@ -6,7 +6,7 @@ Rules and conventions live in `AGENTS.md`; this file holds current state, decisi
 ## Current state
 - Deployed: backend on Render (free plan, sleeps when idle) with Neon Postgres; frontend on Vercel, installable as a PWA.
 - "Showcase" stage done: full redesign (own palette, shared components, clickable star ratings), backend wake-up screen, new PWA icons.
-- In progress: agent harness (`AGENTS.md`, `MEMORY.md`, `opencode.json`, OpenCode commands and MCPs).
+- Agent harness in place: `AGENTS.md`, `MEMORY.md`, Angular CLI MCP (read-only), `/commit` and `/feature` commands, `frontend-design` skill.
 
 ## Decisions (and why)
 - Communities are the core: every bar belongs to one. Any member can create, edit and delete bars; the admin manages
@@ -33,12 +33,11 @@ Rules and conventions live in `AGENTS.md`; this file holds current state, decisi
 - The rating `@Retryable` has no test (real concurrency is hard to reproduce): be careful when touching rating code.
 
 ## Next steps (roadmap, in order)
-1. Agent harness: Angular CLI MCP → `/commit` and `/verify` commands → design skill → Render and Trello MCPs.
-2. Demo account: `DemoDataSeeder` behind `app.demo.enabled=true` (never local or tests), community code `DEMOLEON`
+1. Demo account: `DemoDataSeeder` behind `app.demo.enabled=true` (never local or tests), community code `DEMOLEON`
    recreated on each startup, invented bars in real León areas, `POST /api/auth/demo`, `demo` username reserved.
-3. Welcome screen for logged-out users with a "Try the demo" button.
-4. Open Graph meta tags with a share image.
-5. README: screenshots, architecture, ER diagram, technical decisions.
-6. Outreach: CV, portfolio, LinkedIn post.
+2. Welcome screen for logged-out users with a "Try the demo" button.
+3. Open Graph meta tags with a share image.
+4. README: screenshots, architecture, ER diagram, technical decisions.
+- Optional MCPs (Render, Trello, Figma, local DB read-only): add only when a task needs them.
 - Trello backlog, not part of the roadmap (don't start unless asked): cleaner URL or own domain, service worker,
   community selector in the header, signal forms for login/register, bar + review + tapas in one step, search filters.
