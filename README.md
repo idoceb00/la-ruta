@@ -2,7 +2,7 @@
 
 A web app to save your group's favourite tapas bars, rate them together, and find in seconds which bar serves which tapa.
 
-[![Live app](https://img.shields.io/badge/Live_app-la--ruta--sigma.vercel.app-8B1E2D?style=for-the-badge)](https://la-ruta-sigma.vercel.app)
+[![Live app](https://img.shields.io/badge/Live_app-000000?logo=vercel&logoColor=white)](https://la-ruta-sigma.vercel.app)
 [![Backend CI](https://github.com/idoceb00/la-ruta/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/idoceb00/la-ruta/actions/workflows/backend-ci.yml)
 
 ![Angular](https://img.shields.io/badge/Angular_22-DD0031?logo=angular&logoColor=white)
