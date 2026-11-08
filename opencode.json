@@ -1,0 +1,10 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "angular-cli": {
+      "type": "local",
+      "command": ["pnpm", "-C", "frontend", "exec", "ng", "mcp", "--read-only"],
+      "enabled": true
+    }
+  }
+}
